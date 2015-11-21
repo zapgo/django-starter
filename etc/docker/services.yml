@@ -15,7 +15,7 @@ postgres:
   volumes_from:
     - db_data
   env_file:
-    - ./.env
+    - ${PWD}/.env
 
 redis:
   image: redis
@@ -26,10 +26,10 @@ rabbitmq:
     - "5672:5672"
     - "15672:15672"
   env_file:
-    - ./.env
+    - ${PWD}/.env
 
 webapp:
-  build: .
+  build: ${PWD}
   ports:
     - "8000:8000"
   command: ./docker-entrypoint.sh django
@@ -38,10 +38,9 @@ webapp:
 #    - rabbitmq:rabbit-node
 #    - redis:redis
   volumes:
-    - ./src:/home/webapp/src
-    - ./var:/home/webapp/var
-  env_file:
-    - ./.env
+    - ${PWD}/src:/home/webapp/src
+    - ${PWD}/var:/home/webapp/var
+  env_file: ${PWD}/.env
   log_opt:
     max-size: "500k"
     max-file: "2"

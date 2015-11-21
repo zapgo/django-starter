@@ -175,10 +175,9 @@ EXTENSIONS = [
 ]
 
 PROJECT_APPS = [
-    'fact_book',
+    # 'fact_book',
     'demo_app',
     'version_demo',
-    'client_list',
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS

@@ -15,17 +15,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.contrib.flatpages import urls as flatpage_urls
 from django.conf.urls import include, url
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.conf import settings
-
 from rest_framework import routers
-
 from demo_app.views import JobViewSet
 from version_demo.views import DreamViewSet
-from client_list.views import ClientViewSet
+# from django.contrib.flatpages import urls as flatpage_urls
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -33,7 +30,6 @@ router = routers.DefaultRouter()
 
 router.register(r'jobs', JobViewSet)
 router.register(r'dreams', DreamViewSet)
-router.register(r'clients', ClientViewSet)
 
 urlpatterns = [
     url(r'^api/', include(router.urls)),
@@ -43,8 +39,8 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),
-#    url(r'^index/', include(flatpage_urls)),
-    url(r'^client_list/', include('client_list.urls', namespace='client_list')),
+    # url(r'^index/', include(flatpage_urls)),
+    # url(r'^demo_app/', include('client_list.urls', namespace='demo_app')),
 )
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
