@@ -1,0 +1,9 @@
+webapp:
+  file: ./etc/docker/services.yml
+  extends: webapp
+  environment:
+    - VIRTUAL_HOST=dev.tpam.co
+
+#worker:
+#  extends: webapp
+#  command: ./docker-entrypoint.sh worker

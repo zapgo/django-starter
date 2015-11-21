@@ -1,0 +1,22 @@
+name: dstack
+dependencies:
+- python=3
+- gunicorn
+- psycopg2
+- requests
+- pillow
+#- pandas
+- PyYAML
+- lxml
+- pip:
+  - celery
+  - redis
+  - https://www.djangoproject.com/download/1.9b1/tarball/
+  - django-import-export
+  - djangorestframework
+  - https://github.com/etianen/django-reversion/archive/master.zip
+#  - git+https://github.com/etianen/django-reversion.git
+  - xlrd
+  - xlwt
+  - openpyxl
+  - django-guardian

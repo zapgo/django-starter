@@ -1,0 +1,47 @@
+build_data:
+  image: kmaginary/base:django
+  volumes:
+    - ./tmp/cache/pip/:/home/webapp/.cache/pip/
+    - ./tmp/cache/conda/:/home/webapp/.conda/envs/.pkgs/
+
+db_data:
+  image: postgres
+  command: echo "DB data volume!"
+  volumes:
+    - /var/lib/postgresql/data
+
+postgres:
+  image: postgres
+  volumes_from:
+    - db_data
+  env_file:
+    - ./.env
+
+redis:
+  image: redis
+
+rabbitmq:
+  image: rabbitmq:3-management
+  ports:
+    - "5672:5672"
+    - "15672:15672"
+  env_file:
+    - ./.env
+
+webapp:
+  build: .
+  ports:
+    - "8000:8000"
+  command: ./docker-entrypoint.sh django
+#  links:
+#    - postgres:db
+#    - rabbitmq:rabbit-node
+#    - redis:redis
+  volumes:
+    - ./src:/home/webapp/src
+    - ./var:/home/webapp/var
+  env_file:
+    - ./.env
+  log_opt:
+    max-size: "500k"
+    max-file: "2"
