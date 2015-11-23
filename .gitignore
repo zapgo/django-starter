@@ -68,3 +68,7 @@ db.sqlite3
 
 # Editor folders
 .idea
+
+# Node
+node_modules
+bower_components

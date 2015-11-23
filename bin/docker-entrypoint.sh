@@ -12,18 +12,18 @@ VIRTUAL_ENV=dstack
 if [ $1 == "django" ] 
 then
     echo "Starting django server..."
-    source activate dstack && python ./src/manage.py migrate
-    source activate dstack && python ./src/manage.py runserver 0.0.0.0:8000
+    source activate ${VIRTUAL_ENV} && python ./src/manage.py migrate
+    source activate ${VIRTUAL_ENV} && python ./src/manage.py runserver 0.0.0.0:8000
     echo "Done..."
 fi
 
 if [ $1 == "gunicorn" ] 
 then
     echo "Starting gunicorn server..."
-    source activate dstack && python ./src/manage.py migrate
-    source activate dstack && \
+    source activate ${VIRTUAL_ENV} && python ./src/manage.py migrate
+    source activate ${VIRTUAL_ENV} && \
         gunicorn config.wsgi:application \
-		--name tpam \
+		--name ${VIRTUAL_ENV} \
 		--bind 0.0.0.0:8000 \
 		--workers 3 \
 		--log-level=info \
@@ -39,7 +39,7 @@ if [ $1 == "worker" ]
 then
     echo "Starting celery worker..."
     cd src
-    source activate dstack && celery worker -A config.celery -l DEBUG -c 2
+    source activate ${VIRTUAL_ENV} && celery worker -A config.celery -l DEBUG -c 2
     echo "Done..."
 fi
 

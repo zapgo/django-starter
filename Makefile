@@ -26,9 +26,9 @@ deploy: prepare
 		../$(PROJECT_NAME) $(HOST_NAME):/apps/
 
 install:
-	env $(cat .env | xargs) && ssh $(HOST_NAME) -c "ln -s \
-		/apps/$(PROJECT_NAME)/etc/nginx/$(VIRTUAL_HOST).conf \
-		/apps/$(PROJECT_NAME)/config/$(VIRTUAL_HOST)"
+	env $(cat .env | xargs) && ssh $(HOST_NAME) "cp \
+		/apps/$(PROJECT_NAME)/etc/nginx-vhost.conf \
+		/apps/config/$(VIRTUAL_HOST)"
 
 run:
 	ssh $(HOST_NAME) "cd /apps/$(PROJECT_NAME)/ && docker-compose up -d"
@@ -46,9 +46,9 @@ db_restore:
 	docker-compose start
 
 clean_unused_volumes:
-	docker rm -v `docker ps --no-trunc -aq`
+	- docker rm -v  $(docker ps --no-trunc -aq status=exited)
+	- docker rmi $(docker images -q -f "dangling=true")
 	docker run -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker --rm martin/docker-cleanup-volumes
-	docker rmi $(docker images -f "dangling=true" -q)
 
 createsuperuser:
 	docker-compose run --rm webapp bash -c "source activate $(PROJECT_NAME) && ./src/manage.py createsuperuser"
@@ -73,7 +73,6 @@ install_docker_root:
 reload_server:
 	ssh $(HOST_NAME) "cd /apps/$(PROJECT_NAME)/; docker-compose restart;"
 
-
 get_certificate:
 	sudo docker run -it --rm -p 443:443 -p 80:80 --name letsencrypt \
 			-v "/etc/letsencrypt:/etc/letsencrypt" \
@@ -81,9 +80,11 @@ get_certificate:
 			quay.io/letsencrypt/letsencrypt:latest auth
 
 run_proxy:
-	sudo docker run -d -p 80:80 -p 443:443  --name nginx-proxy \
-		-v /apps/$(PROJECT_NAME)/var/www/:/var/www/$(PROJECT_NAME)/ \
-		-v /apps/certs:/etc/nginx/certs  \
+	- env $(cat .env | xargs) && \
+	ssh europe "docker run -d -p 80:80 -p 443:443  --name nginx-proxy \
+		-v /apps/static:/var/www:ro \
+		-v /apps/certs:/etc/nginx/certs:ro \
 		-v /apps/config/:/etc/nginx/vhost.d:ro \
 		-v /var/run/docker.sock:/tmp/docker.sock:ro \
-		jwilder/nginx-proxy
+		jwilder/nginx-proxy"
+	ssh europe "docker restart nginx-proxy"

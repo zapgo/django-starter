@@ -30,9 +30,9 @@ rabbitmq:
 
 webapp:
   build: ${PWD}
-  ports:
-    - "8000:8000"
-  command: ./docker-entrypoint.sh django
+#  ports:
+#    - "8000:8000"
+  command: ./docker-entrypoint.sh gunicorn
 #  links:
 #    - postgres:db
 #    - rabbitmq:rabbit-node
