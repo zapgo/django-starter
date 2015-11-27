@@ -4,17 +4,11 @@
 
 echo "Fixing environtment..."
 
-VIRTUAL_ENV=dstack
-
-#mkdir -p var/logs
-#touch var/logs/django.log
-
 if [ $1 == "django" ] 
 then
     echo "Starting django server..."
     source activate ${VIRTUAL_ENV} && python ./src/manage.py migrate
     source activate ${VIRTUAL_ENV} && python ./src/manage.py runserver 0.0.0.0:8000
-    echo "Done..."
 fi
 
 if [ $1 == "gunicorn" ] 
@@ -29,9 +23,7 @@ then
 		--log-level=info \
 		--log-file=- \
 		--pythonpath /home/webapp/src/ \
-		--forwarded-allow-ips='*' 
-#		"$@"
-    echo "Done..."
+		--forwarded-allow-ips='*'
 fi
 
 
@@ -40,7 +32,8 @@ then
     echo "Starting celery worker..."
     cd src
     source activate ${VIRTUAL_ENV} && celery worker -A config.celery -l DEBUG -c 2
-    echo "Done..."
 fi
+
+echo "Done..."
 
 #exec "$@"

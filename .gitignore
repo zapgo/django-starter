@@ -65,6 +65,7 @@ target/
 # Binary files
 db.sqlite3
 *.xls[xm]
+*.db
 
 # Editor folders
 .idea

@@ -1,40 +1,8 @@
-env:
-	export $(cat ./.env | grep -v ^# | xargs)
-
-#source activate ${PROJECT_NAME}
-#clear_env
-#env $(cat .env | xargs)
-
 init_dev: env
 	conda env update
 	touch .env
 	mkdir -p var/www/static
 	mkdir -p var/www/media
-
-prepare: env
-	./src/manage.py makemigrations
-	./src/manage.py migrate
-	./src/manage.py collectstatic --noinput -v1
-
-deploy: prepare
-	rsync -rPh \
-		--exclude '.git' \
-		--exclude '__pycache__' \
-		--exclude '.idea' \
-		--exclude 'bower_components' \
-		--exclude 'node_modules' \
-		../$(PROJECT_NAME) $(HOST_NAME):/apps/
-
-install:
-	env $(cat .env | xargs) && ssh $(HOST_NAME) "cp \
-		/apps/$(PROJECT_NAME)/etc/nginx-vhost.conf \
-		/apps/config/$(VIRTUAL_HOST)"
-
-run:
-	ssh $(HOST_NAME) "cd /apps/$(PROJECT_NAME)/ && docker-compose up -d"
-
-clean_run:
-	ssh $(HOST_NAME) "cd /apps/$(PROJECT_NAME)/ && docker-compose stop && docker-compose rm && docker-compose up -d"
 
 db_backup:
 	docker run --rm --volumes-from $(PROJECT_NAME)_db_data_1 -v $(pwd)/var/backups:/backup postgres tar cpf /backup/db_backup.tar /var/lib/postgresql/data
@@ -70,21 +38,9 @@ install_docker_root:
 	docker run hello-world
 	usermod -aG docker root
 
-reload_server:
-	ssh $(HOST_NAME) "cd /apps/$(PROJECT_NAME)/; docker-compose restart;"
 
 get_certificate:
 	sudo docker run -it --rm -p 443:443 -p 80:80 --name letsencrypt \
 			-v "/etc/letsencrypt:/etc/letsencrypt" \
 			-v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
 			quay.io/letsencrypt/letsencrypt:latest auth
-
-run_proxy:
-	- env $(cat .env | xargs) && \
-	ssh europe "docker run -d -p 80:80 -p 443:443  --name nginx-proxy \
-		-v /apps/static:/var/www:ro \
-		-v /apps/certs:/etc/nginx/certs:ro \
-		-v /apps/config/:/etc/nginx/vhost.d:ro \
-		-v /var/run/docker.sock:/tmp/docker.sock:ro \
-		jwilder/nginx-proxy"
-	ssh europe "docker restart nginx-proxy"

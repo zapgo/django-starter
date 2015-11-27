@@ -1,8 +1,8 @@
 build_data:
-  image: kmaginary/base:django
+  image: kmaginary/base:miniconda
   volumes:
-    - ./tmp/cache/pip/:/home/webapp/.cache/pip/
-    - ./tmp/cache/conda/:/home/webapp/.conda/envs/.pkgs/
+    - /apps/cache/pip/:/home/webapp/.cache/pip/
+    - /apps/cache/conda/:/home/webapp/.conda/envs/.pkgs/
 
 db_data:
   image: postgres
@@ -12,8 +12,8 @@ db_data:
 
 postgres:
   image: postgres
-  volumes_from:
-    - db_data
+#  volumes_from:
+#    - db_data
   env_file:
     - ${PWD}/.env
 

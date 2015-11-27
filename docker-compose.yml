@@ -3,11 +3,22 @@ webapp:
     service: webapp
     file: ./etc/docker-services.yml
   ports:
-    - 8000:8000
-#  environment:
-#    - VIRTUAL_HOST=dev.tpam.co
+    - 8001:8000
 
 #worker:
 #  extends:
 #     service: webapp
 #  command: ./docker-entrypoint.sh worker
+
+postgres:
+  image: postgres
+  volumes_from:
+    - db_data
+  env_file:
+    - ${PWD}/.env
+
+db_data:
+  image: postgres
+  command: echo "DB data volume!"
+  volumes:
+    - /var/lib/postgresql/data
