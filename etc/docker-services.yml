@@ -44,3 +44,14 @@ webapp:
   log_opt:
     max-size: "500k"
     max-file: "2"
+
+nginx-proxy:
+  image: jwilder/nginx-proxy
+  ports:
+    - 80:80
+    - 443:443
+  volumes:
+    - /srv/htdocs:/var/www:ro
+    - /srv/certs:/etc/nginx/certs:ro
+    - /srv/config/:/etc/nginx/vhost.d:ro
+    - /var/run/docker.sock:/tmp/docker.sock:ro
