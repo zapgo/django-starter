@@ -176,6 +176,7 @@ EXTENSIONS = [
 
 PROJECT_APPS = [
     # 'fact_book',
+    'config',
     'demo_app',
     'version_demo',
 ]

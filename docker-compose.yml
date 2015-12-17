@@ -8,7 +8,13 @@ webapp:
 #worker:
 #  extends:
 #     service: webapp
-#  command: ./docker-entrypoint.sh worker
+#  command: bash -c "celery worker -A config.celery -l DEBUG -c 2"
+
+#django:
+#  extends:
+#     service: webapp
+#  command: bash -c "python manage.py django_server"
+
 
 postgres:
   image: postgres

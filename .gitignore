@@ -58,6 +58,7 @@ target/
 
 # Environment file
 .env
+*.env
 
 # Backup files
 *.bak 

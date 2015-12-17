@@ -66,17 +66,39 @@ def deploy():
 
 def update_env():
     put('./environment.yml', '%s' % env.project_dir)
+    put('./etc/build-requirements.txt', '%s' % os.path.join(env.project_dir + '/etc')
     docker_build()
 
+# cp /srv/apps/gauseng/etc/build-requirements.txt /srv/build/requirements.txt
+#
+# cd /srv/build && docker-compose -f service.yml -p gauseng run --rm wheel-factory
+#
+# cd /srv/build && docker build -t gauseng_base .
+#
+# rm -rf /srv/build/wheelhouse/*
+#
+# cd /srv/apps/tpam && docker-compose build --no-cache && docker-compose up
+
+
+def make_wheels():
+    run("cp /srv/apps/gauseng/etc/build-requirements.txt /srv/build/requirements.txt")
+    run("cd /srv/build && docker-compose -f service.yml -p gauseng run --rm wheel-factory")
 
 def docker_build():
-    with cd(env.project_dir):
-        run("docker-compose build")
+    run("cd /srv/build && docker build -t gauseng_base .")
 
+    with cd(env.project_dir):
+        run("docker-compose build --no-cache")
 
 def docker_run():
     with cd(env.project_dir):
         run("docker-compose up -d")
+
+def rebuild():
+    make_wheels()
+    docker_build()
+    docker_run()
+
 
 
 def docker_clean():

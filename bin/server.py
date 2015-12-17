@@ -5,7 +5,7 @@ import os
 # Load local .env file
 # env_path = os.path.join(os.path.dirname(__file__), '.env')
 # load_dotenv(env_path)
-load_dotenv('/Users/canary/dstack/.env')
+load_dotenv('/Users/canary/dstack/server.env')
 token = os.environ.get('DIGITAL_OCEAN_TOKEN')
 
 host_name = os.environ.get('HOST_NAME')
@@ -14,6 +14,7 @@ sshd_port = os.environ.get('SSHD_PORT')
 key_file_private = os.environ.get('KEY_FILE_PRIVATE')
 key_file_public = os.environ.get('KEY_FILE_PUBLIC')
 docker_compose_version = os.environ.get('DOCKER_COMPOSE_VERSION')
+pptp_secret = os.environ.get('PPTP_SECRET')
 
 
 def main():
@@ -32,9 +33,15 @@ def main():
             'user_name': user_name,
             'sshd_port': sshd_port,
             'docker_compose_version': docker_compose_version,
-            'ssh_public_key': ssh_public_key
+            'ssh_public_key': ssh_public_key,
+            'pptp_secret': pptp_secret,
         }),
     }
+
+    droplet = create_droplet(config)
+
+    print(get_ip(droplet.id))
+    print(get_ssh_config(droplet.id))
 
     return config
 
@@ -49,7 +56,6 @@ def read_public_key(path):
 def create_droplet(config):
     droplet = digitalocean.Droplet(**config)
     droplet.create()
-    print(droplet.id)
     return droplet
 
 
@@ -114,12 +120,17 @@ write_files:
           - /srv/certs:/etc/nginx/certs:ro
           - /srv/config/:/etc/nginx/vhost.d:ro
           - /var/run/docker.sock:/tmp/docker.sock:ro
+  - path: /srv/chap-secrets
+    content: |
+      # client    server      secret      acceptable local IP addresses
+      canary      *           {pptp_secret}    *
+
 runcmd:
   - touch /init.txt
   - curl -L https://github.com/docker/compose/releases/download/{docker_compose_version}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
+  - mkdir -p /srv/certs /srv/config /srv/apps /srv/htdocs
   - chown -R {user_name}:{user_name} /srv/
-  - mkdir -p /srv/certs /srv/config /srv/apps
   - sed -i -e '/^Port/s/^.*$/Port {sshd_port}/' /etc/ssh/sshd_config
   - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
   - sed -i -e '$aAllowUsers {user_name}' /etc/ssh/sshd_config
@@ -130,5 +141,7 @@ runcmd:
   - docker pull postgres
   - docker pull redis
   - docker pull rabbitmq:3-management
+  - docker pull mobtitude/vpn-pptp
+  - docker run -d --privileged -p 1723:1723 -v /srv/chap-secrets:/etc/ppp/chap-secrets mobtitude/vpn-pptp
   - cd /srv/ && docker-compose up -d
 """

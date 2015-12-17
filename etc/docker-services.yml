@@ -1,9 +1,3 @@
-build_data:
-  image: kmaginary/base:miniconda
-  volumes:
-    - /apps/cache/pip/:/home/webapp/.cache/pip/
-    - /apps/cache/conda/:/home/webapp/.conda/envs/.pkgs/
-
 db_data:
   image: postgres
   command: echo "DB data volume!"
@@ -32,18 +26,18 @@ webapp:
   build: ${PWD}
 #  ports:
 #    - "8000:8000"
-  command: ./docker-entrypoint.sh gunicorn
+  command: /docker-entrypoint.sh gunicorn
 #  links:
 #    - postgres:db
 #    - rabbitmq:rabbit-node
 #    - redis:redis
   volumes:
-    - ${PWD}/src:/home/webapp/src
-    - ${PWD}/var:/home/webapp/var
+    - ${PWD}/src:/app
   env_file: ${PWD}/.env
   log_opt:
     max-size: "500k"
     max-file: "2"
+
 
 nginx-proxy:
   image: jwilder/nginx-proxy
