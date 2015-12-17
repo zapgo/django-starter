@@ -66,7 +66,7 @@ def deploy():
 
 def update_env():
     put('./environment.yml', '%s' % env.project_dir)
-    put('./etc/build-requirements.txt', '%s' % os.path.join(env.project_dir + '/etc')
+    put('./etc/build-requirements.txt', '%s' % os.path.join(env.project_dir + '/etc'))
     docker_build()
 
 # cp /srv/apps/gauseng/etc/build-requirements.txt /srv/build/requirements.txt
