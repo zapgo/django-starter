@@ -1,0 +1,42 @@
+[
+{
+  "fields": {
+    "enable_comments": true,
+    "title": "Welcome",
+    "registration_required": false,
+    "content": "<h1>Gaussian Contact List</h1>\r\n\r\nClick <a href=\"/admin/\">here</a> to log in.",
+    "sites": [
+      4,
+      3
+    ],
+    "url": "/",
+    "template_name": ""
+  },
+  "model": "flatpages.flatpage",
+  "pk": 1
+},
+{
+  "fields": {
+    "domain": "example.com",
+    "name": "example.com"
+  },
+  "model": "sites.site",
+  "pk": 2
+},
+{
+  "fields": {
+    "domain": "data.gauseng.com",
+    "name": "Gaussian Data"
+  },
+  "model": "sites.site",
+  "pk": 3
+},
+{
+  "fields": {
+    "domain": "127.0.0.1:8000",
+    "name": "Localhost"
+  },
+  "model": "sites.site",
+  "pk": 4
+}
+]
