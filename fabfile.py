@@ -84,21 +84,23 @@ def make_wheels():
     run("cp /srv/apps/gauseng/etc/build-requirements.txt /srv/build/requirements.txt")
     run("cd /srv/build && docker-compose -f service.yml -p gauseng run --rm wheel-factory")
 
+
 def docker_build():
     run("cd /srv/build && docker build -t gauseng_base .")
 
     with cd(env.project_dir):
         run("docker-compose build --no-cache")
 
+
 def docker_run():
     with cd(env.project_dir):
         run("docker-compose up -d")
+
 
 def rebuild():
     make_wheels()
     docker_build()
     docker_run()
-
 
 
 def docker_clean():
