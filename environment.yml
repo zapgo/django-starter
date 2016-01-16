@@ -9,3 +9,4 @@ dependencies:
   - django-import-export
   - djangorestframework
   - django-reversion
+  - django-mptt

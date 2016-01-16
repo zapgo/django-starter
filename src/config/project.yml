@@ -1,6 +1,0 @@
-name: dstack
-apps_enabled:
-  - demo_app
-plugins_enabled:
-  - rest_framework
-  - task_runner

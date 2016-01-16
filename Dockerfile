@@ -1,4 +1,4 @@
-FROM gauseng_webapp
+FROM default_webapp
 MAINTAINER JR Minnaar <jr.minnaar@gmail.com>
 
 # Add a non-privilaged user

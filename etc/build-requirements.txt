@@ -4,8 +4,10 @@ redis
 psycopg2
 pillow
 pandas
---pre django
+django
 djangorestframework
 django-import-export
 django-reversion
 django-guardian
+django-mptt
+django-ckeditor

@@ -10,8 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
-import os
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
@@ -25,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = ')#2)_4q&%xsulm^ry-9s0+nxk%s%ag9gx09z_7$jhv1lmj(dwq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -57,7 +55,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': '',
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -127,7 +125,7 @@ STATIC_URL = '/static/'
 # ---------------------------------------------------------------------------------------------------------------------
 VERSION = '1.0.0'
 
-SITE_ID = 2
+SITE_ID = 1
 
 LOGIN_URL = '/admin/login'
 
@@ -135,15 +133,18 @@ PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
 
 TEMPLATES[0].update({'DIRS': [os.path.join(BASE_DIR, 'config/templates'), ]})
 
-SITE_HEADER = 'TetraPak Client list'
+FIXTURE_DIRS = ['config/fixtures']
+
+SITE_HEADER = 'Site Header Template'
 
 # STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'var/www/static')
 
-# STATICFILES_DIRS = [
-#     os.path.join(PROJECT_DIR, "var/www/static"),
-#     '/var/www/static/',
-# ]
+STATICFILES_DIRS = [
+    # os.path.join(PROJECT_DIR, "var/www/static"),
+    # '/var/www/static/',
+    os.path.join(BASE_DIR, "config/static"),
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'var/www/media')
@@ -171,12 +172,17 @@ EXTENSIONS = [
     'rest_framework',
     'reversion',
     # 'guardian',
-    # 'mptt',
+    'mptt',
+    # 'adminsortable',
+    'django_select2',
+    # 'feincms',
+    'ckeditor',
 ]
 
 PROJECT_APPS = [
     # 'fact_book',
-    'config',
+    'administration',
+    # 'config',
     'demo_app',
     'version_demo',
 ]
@@ -185,6 +191,7 @@ INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS
 
 from .plugins.task_runner import *
 from .plugins.rest_framework import *
+from .plugins.ckeditor import *
 
 # Development override
 CELERY_ALWAYS_EAGER = True
