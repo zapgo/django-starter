@@ -233,6 +233,7 @@ def config(action=None, key=None, value=None):
 def update_self():
     """
     Function to update dstack. Please make sure all changes are commited before running.
+    Still requires cleanup and testing.
     :return:
     """
     local('git commit -a -m "Autocommit before dstack update"')
