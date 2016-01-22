@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 import os
 
 # Load local .env file
-# env_path = os.path.join(os.path.dirname(__file__), '.env')
+# env_path = os.path.join(os.path.dirname(__file__), '../server.env')
 # load_dotenv(env_path)
-load_dotenv('/Users/canary/dstack/server.env')
+load_dotenv('~/dstack/server.env')
 token = os.environ.get('DIGITAL_OCEAN_TOKEN')
 
 host_name = os.environ.get('HOST_NAME')
@@ -47,7 +47,7 @@ def main():
 
 
 def read_public_key(path):
-    ssh_public_key = ''
+    # ssh_public_key = ''
     with open(path) as f:
         ssh_public_key = f.read().strip('\n')
     return ssh_public_key

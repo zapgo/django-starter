@@ -2,29 +2,32 @@ webapp:
   extends:
     service: webapp
     file: ./etc/docker-services.yml
+  command: bash -c "gunicorn config.wsgi:application --config file:config/gunicorn.py"
   ports:
-    - 8001:8000
+    - 8010:8000
 
 #worker:
 #  extends:
 #     service: webapp
+#     file: ./etc/docker-services.yml
 #  command: bash -c "celery worker -A config.celery -l DEBUG -c 2"
 
 #django:
 #  extends:
 #     service: webapp
+#     file: ./etc/docker-services.yml
 #  command: bash -c "python manage.py django_server"
 
 
-postgres:
-  image: postgres
-  volumes_from:
-    - db_data
-  env_file:
-    - ${PWD}/.env
+#postgres:
+#  image: postgres
+#  volumes_from:
+#    - db_data
+#  env_file:
+#    - ${PWD}/.env
 
-db_data:
-  image: postgres
-  command: echo "DB data volume!"
-  volumes:
-    - /var/lib/postgresql/data
+#db_data:
+#  image: postgres
+#  command: echo "DB data volume!"
+#  volumes:
+#    - /var/lib/postgresql/data

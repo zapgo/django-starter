@@ -23,14 +23,16 @@ rabbitmq:
     - ${PWD}/.env
 
 webapp:
-  build: ${PWD}
+  image: ${IMAGE_NAME}
+#  build: ${PWD}
 #  ports:
 #    - "8000:8000"
-  command: /docker-entrypoint.sh gunicorn
+#  command: /docker-entrypoint.sh gunicorn
 #  links:
 #    - postgres:db
 #    - rabbitmq:rabbit-node
 #    - redis:redis
+  user: webapp
   volumes:
     - ${PWD}/src:/app
   env_file: ${PWD}/.env

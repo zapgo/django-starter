@@ -1,12 +1,12 @@
 from __future__ import with_statement
-from fabric.api import env, local, run, settings, abort, put, cd, prefix
+from fabric.api import env, local, run, task, settings, abort, put, cd, prefix
 from fabric.contrib.project import rsync_project
-from dotenv import load_dotenv
+import dotenv
 import os
 
 # Load local .env file
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv.load_dotenv(env.local_dotenv_path)
 
 # Set Fabric env
 env.use_ssh_config = True
@@ -14,20 +14,32 @@ env.hosts = [os.environ.get('HOST_NAME', ''), ]
 env.project_name = os.environ.get('PROJECT_NAME', '')
 env.virtual_env = os.environ.get('VIRTUAL_ENV', '')
 env.virtual_host = os.environ.get('VIRTUAL_HOST', '')
+env.image_name = os.environ.get('IMAGE_NAME', '')
 env.project_dir = os.path.join('/srv/apps/', env.project_name)
 env.build_dir = '/srv/build'
 env.activate = 'source activate %s' % env.virtual_env
+env.dotenv_path = os.path.join(env.project_dir, '.env')
 
 
-def compose(cmd: str = '--help', path: str = ''):
+def install_help():
+    print('To install Pythor 3 Fabric, run:')
+    print('pip install https://github.com/akaariai/fabric/archive/py34.zip')
+
+
+def compose(cmd: str = '--help', path: str = '') -> None:
     if not path:
         path = env.project_dir
 
     with cd(path):
-        run('docker-compose {cmd}'.format(cmd=cmd))
+        run("IMAGE_NAME={image_name} bash -c 'docker-compose {cmd}'".format(
+                cmd=cmd, image_name=env.image_name))
 
 
-def manage(cmd: str = 'help'):
+def docker(cmd: str = '--help') -> None:
+    run('docker {cmd}'.format(cmd=cmd))
+
+
+def manage(cmd: str = 'help') -> None:
     local('./src/manage.py {cmd}'.format(cmd=cmd))
 
 
@@ -73,9 +85,15 @@ def local_db_reset():
 
 
 def upload_app():
-    rsync_project(env.project_dir, './',
-                  exclude=('.git', '__pycache__', '.idea', 'bower_components', 'node_modules', 'static', 'var',),
-                  delete=True)
+    rsync_project(
+            env.project_dir, './',
+            exclude=(
+                '.git', '.gitignore', '__pycache__', '*.pyc', '.DS_Store', 'environment.yml',
+                'fabfile.py', 'Makefile', '.idea',
+                'bower_components', 'node_modules',
+                'static', 'var',
+                'server.env', '.env.example', 'requirements.txt', 'README.md',
+            ), delete=True)
 
 
 def upload_www():
@@ -118,19 +136,24 @@ def make_default_webapp():
     put('./requirements.txt', '/srv/build/requirements.txt')
 
     with cd('/srv/build'):
-        run('docker build -t default_webapp .')
+        run('docker build -t {image_name} .'.format(
+            image_name=env.image_name,
+        ))
 
-    run('docker tag default_webapp kmaginary/apps:%s' % env.project_name)
+    # run('docker tag default_webapp kmaginary/apps:%s' % env.project_name)
 
 
-def docker_build_app():
-    compose('build', env.project_dir)
+def push_image():
+    docker('push %s' % env.image_name)
 
 
 def update_runtime():
     # make_wheels()
     make_default_webapp()
-    docker_build_app()
+
+
+# def start_webapp():
+#     run('IMAGE_NAME=kamginary/apps:dstack bash -c echo ${IMAGE_NAME}')
 
 
 def start_proxy():
@@ -165,6 +188,18 @@ def db_restore():
     compose('start')
 
 
+def wheel_backup():
+    run('mv /srv/build/wheelhouse/* /srv/build/wheelhouse_backup')
+    run('mkdir -p /srv/build/wheelhouse')
+    run('cp /srv/build/wheelhouse_backup/Cython-0.23.4-cp35-cp35m-linux_x86_64.whl /srv/build/wheelhouse/')
+    run('cp /srv/build/wheelhouse_backup/numpy-1.10.4-cp35-cp35m-linux_x86_64.whl /srv/build/wheelhouse/')
+    run('cp /srv/build/wheelhouse_backup/scipy-0.16.1-cp35-cp35m-linux_x86_64.whl /srv/build/wheelhouse/')
+
+
+def wheel_restore():
+    run('mv /srv/build/wheelhouse_backup/* /srv/build/wheelhouse')
+
+
 def clean_unused_volumes():
     try:
         run('docker rm -v  $(docker ps --no-trunc -aq status=exited)')
@@ -179,3 +214,18 @@ def clean_unused_volumes():
         '-v /var/run/docker.sock:/var/run/docker.sock '
         '-v /var/lib/docker:/var/lib/docker '
         'martin/docker-cleanup-volumes')
+
+
+@task
+def config(action=None, key=None, value=None):
+    '''Manage project configuration via .env
+
+    e.g: fab config:set,<key>,<value>
+         fab config:get,<key>
+         fab config:unset,<key>
+         fab config:list
+    '''
+
+    run('touch %(dotenv_path)s' % env)
+    command = dotenv.get_cli_string(env.dotenv_path, action, key, value)
+    run(command)
