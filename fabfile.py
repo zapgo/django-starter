@@ -216,7 +216,6 @@ def clean_unused_volumes():
         'martin/docker-cleanup-volumes')
 
 
-@task
 def config(action=None, key=None, value=None):
     '''Manage project configuration via .env
 
@@ -229,3 +228,19 @@ def config(action=None, key=None, value=None):
     run('touch %(dotenv_path)s' % env)
     command = dotenv.get_cli_string(env.dotenv_path, action, key, value)
     run(command)
+
+
+def update_self():
+    """
+    Function to update dstack. Please make sure all changes are commited before running.
+    :return:
+    """
+    local('git commit -a -m "Autocommit before dstack update"')
+
+    fp = './dstack-master/'
+    local('wget https://github.com/jr-minnaar/dstack/archive/master.tar.gz')
+    local('tar -zxvf master.tar.gz '
+          '--strip=1 {fp}etc {fp}bin '
+          '{fp}.dockerignore {fp}.gitignore '
+          '{fp}fabfile.py {fp}docker-compose.yml'.format(fp=fp))
+    local('rm master.tar.gz')
