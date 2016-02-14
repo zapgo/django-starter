@@ -1,9 +1,6 @@
-from django.shortcuts import render
-
 from rest_framework import mixins, viewsets
-
-from .models import Job
-from .serializers import JobSerializer
+from .models import Dream, Job
+from .serializers import DreamSerializer, JobSerializer
 
 
 class JobViewSet(mixins.CreateModelMixin,
@@ -15,3 +12,11 @@ class JobViewSet(mixins.CreateModelMixin,
     """
     queryset = Job.objects.all()
     serializer_class = JobSerializer
+
+
+class DreamViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = Dream.objects.all()
+    serializer_class = DreamSerializer

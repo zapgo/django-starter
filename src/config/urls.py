@@ -20,9 +20,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework import routers
-from demo_app.views import JobViewSet
-from version_demo.views import DreamViewSet
-# from django.contrib.flatpages import urls as flatpage_urls
+from demo_app.views import JobViewSet, DreamViewSet
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -35,12 +33,14 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    url(r'^select2/', include('django_select2.urls')),
 ]
 
 urlpatterns += i18n_patterns(
-    url(r'^admin/', include(admin.site.urls)),
     # url(r'^index/', include(flatpage_urls)),
-    # url(r'^demo_app/', include('client_list.urls', namespace='demo_app')),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^demo/', include('demo_app.urls', namespace='demo_app')),
 )
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

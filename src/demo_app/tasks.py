@@ -1,22 +1,22 @@
+from config.celery import app
 from celery import shared_task
+from functools import wraps
+from .models import Job
+
 
 @shared_task
 def add(x, y):
     return x + y
 
+
 @shared_task
 def mul(x, y):
     return x * y
 
+
 @shared_task
 def xsum(numbers):
     return sum(numbers)
-
-
-from functools import wraps
-
-from config.celery import app
-from .models import Job
 
 
 def update_job(fn):
@@ -34,13 +34,16 @@ def update_job(fn):
             job.result = None
             job.status = 'failed'
             job.save()
+
     return wrapper
 
 
 @app.task
 @update_job
 def power(n):
-    """Return 2 to the n'th power"""
+    """Return 2 to the n'th power
+    :param n:
+    """
     return 2 ** n
 
 
@@ -48,6 +51,7 @@ def power(n):
 @update_job
 def fib(n):
     """Return the n'th Fibonacci number.
+    :param n:
     """
     if n < 0:
         raise ValueError("Fibonacci numbers are only defined for n >= 0.")
@@ -60,8 +64,8 @@ def _fib(n):
     else:
         return _fib(n - 1) + _fib(n - 2)
 
+
 TASK_MAPPING = {
     'power': power,
     'fibonacci': fib
 }
-

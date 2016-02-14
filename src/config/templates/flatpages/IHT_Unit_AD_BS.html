@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UHT Unit (Indirect units: TA Flex, Drink; Direct units: VTIS, Plus) Data Logging Page 3</title>
+
+        <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+            crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <header></header>
+        <div class="row">
+            <div class="col-md-12">
+                <div>
+                    <h1 id="ut_header">Basic Settings</h1></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-horizontal" method="post">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">UHT Name</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="uht_name" placeholder="Name">
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Parent Cell </label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <select class="form-control">
+                                    <optgroup label="This is a group">
+                                        <option value="12" selected="">This is item 1</option>
+                                        <option value="13">This is item 2</option>
+                                        <option value="14">This is item 3</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">UTH Type</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <select class="form-control">
+                                    <optgroup label="This is a group">
+                                        <option value="12" selected="">This is item 1</option>
+                                        <option value="13">This is item 2</option>
+                                        <option value="14">This is item 3</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Capacity </label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="capacity" placeholder="0">
+                                    <div class="input-group-addon"><span>L/h </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Volume A</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="volume_a" placeholder="0">
+                                    <div class="input-group-addon"><span>L </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Volume B</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="volume_b" placeholder="0">
+                                    <div class="input-group-addon"><span>L </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Volume C</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="volume_c" placeholder="0">
+                                    <div class="input-group-addon"><span>L </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Volume D</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="volume_d" placeholder="0">
+                                    <div class="input-group-addon"><span>L </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Volume M</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="volume_m" placeholder="0">
+                                    <div class="input-group-addon"><span>L </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                <label class="control-label">Volume N</label>
+                            </div>
+                            <div class="col-md-6 col-sm-8">
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="volume_n" placeholder="0">
+                                    <div class="input-group-addon"><span>L </span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-8">
+                                <p class="help-block">Help </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Configured for filling to Aseptic Tank or direct to AFM</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Configured for filling both to Aseptic Tank and direct to AFM</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Reclaim Mix Phase Product</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Option V71</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Queue for Aseptic Tanks</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Include supply line volume</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Option Homogenizer&nbsp;</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox">Option QT78 (Turbidity Transmitter)</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Hide Auto Filled Cells</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-primary" type="submit">Save </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="accordion" class="panel-group" role="tablist" aria-multiselectable="true">
+                            <div class="panel panel-default">
+                                <div id="heading1" class="panel-heading" role="tab">
+                                    <h4 class="panel-title"><a href="#collapse1" role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse1">Supply Line </a><span class="glyphicon glyphicon-menu-down" style="float: right;"> </span></h4></div>
+                                <div id="collapse1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading1">
+                                    <div class="panel-body">
+                                        <div class="col-md-12">
+                                            <form class="form-horizontal" method="post">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Line Name</label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <select class="form-control">
+                                                                <optgroup label="This is a group">
+                                                                    <option value="12" selected="">This is item 1</option>
+                                                                    <option value="13">This is item 2</option>
+                                                                    <option value="14">This is item 3</option>
+                                                                </optgroup>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Volume J</label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="volume_j" placeholder="0">
+                                                                <div class="input-group-addon"><span>L </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Volume Kf</label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="volume_kf" placeholder="0">
+                                                                <div class="input-group-addon"><span>L </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p>Go to Plant Conig Module and Add another <span style="text-decoration: underline;">Milk Transferring Unit</span></p>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button class="btn btn-primary" type="submit">Save </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div id="heading2" class="panel-heading" role="tab">
+                                    <h4 class="panel-title"><a href="#collapse2" role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse2">Volume Control </a><span class="glyphicon glyphicon-menu-down" style="float: right;"> </span></h4></div>
+                                <div id="collapse2" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading2">
+                                    <div class="panel-body">
+                                        <div class="col-md-12">
+                                            <form class="form-horizontal" method="post">
+                                                <div class="col-md-6">
+                                                    <h4><span style="text-decoration: underline;">Step Volumes during Pre-sterilization Phase:</span></h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Fill up the sterilizer Kf</label>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="fill_up_the_sterilizer">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Cooling 1 </label>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="cooling_1">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Cooling 2</label>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="cooling_2">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-3 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Cooling 3</label>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="cooling_3">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-9">
+                                                    <h4><span style="text-decoration: underline;">Step Volumes during Production Phase:</span></h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Fill up supply line with water</label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="fill_up_supply_line_with_water">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Fill supply line mix to BTD&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="fill_supply_line_mix_to_BTD ">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-8 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Fill pure product in supply line to BTD&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="fill_pure_product_in_supply_line_to_BTD ">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-8 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Fill product to BTD over low level&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="fill_product_to_BTD_over_low_level">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Filling up sterilizer with product to drain&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="filling_up_sterilizer_with_product_to_drain">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Filling up sterilizer with product to reject&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="filling_up_sterilizer_with_product_to_reject">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Empty supply line</label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="empty_supply_line">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Fill supply line mix HP into BTD &nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="fill_supply_line_mix_HP_into_BTD">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Emptying machine to AT/AFM &nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="emptying_machine_to_AT/AFM">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Emptying machine to HP/LP Reclaim &nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="emptying_machine_to_HP/LP_reclaim">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Collect HP/LP&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="collect_HP/LP">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Rinsing after production &nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="rinsing_after_production">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h4><strong><span style="text-decoration: underline;">Step Volumes during Setup/SKU Change Phase:</span></strong> </h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Caustic dosing AIC/CIP&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="caustic_dosing_AIC/CIP">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Acid dosing AIC&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="acid_dosing_AIC">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Acid dosing CIP&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="acid_dosing_CIP">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4">
+                                                            <label class="control-label">Rinsing AIC/CIP&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="rinsing_AIC/CIP">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h4><strong><span style="text-decoration: underline;">Mix Phase HP/LP:</span></strong><span style="text-decoration: underline;"> </span></h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-1">
+                                                            <label class="control-label">e1 </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="e1">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-1">
+                                                            <label class="control-label">e2 </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="e2">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-1">
+                                                            <label class="control-label">e3 </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="e3">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-1">
+                                                            <label class="control-label">e4 </label>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="e4">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <h4><strong><span style="text-decoration: underline;">Volume Ef:</span></strong></h4>
+                                                    <div class="form-group">
+                                                        <label class="control-label col-md-4 control-label" for="uht_name">=e1+e2 </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <h4><strong><span style="text-decoration: underline;">Volume Ee:</span></strong></h4>
+                                                    <div class="form-group">
+                                                        <label class="control-label col-md-4 control-label" for="uht_name">=e1+e2 </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button class="btn btn-primary" type="submit">Save </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div id="heading3" class="panel-heading" role="tab">
+                                    <h4 class="panel-title"><a href="#collapse3" role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse3">Backup Timers </a><span class="glyphicon glyphicon-menu-down" style="float: right;"> </span></h4></div>
+                                <div id="collapse3" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading3">
+                                    <div class="panel-body">
+                                        <div class="col-md-12">
+                                            <form class="form-horizontal" method="post">
+                                                <div class="col-md-6">
+                                                    <p><strong><em>INCOMPLETE: </em></strong>The same as volume control (control each step with timers instead)...</p>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button class="btn btn-primary" type="submit">Save </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div id="heading4" class="panel-heading" role="tab">
+                                    <h4 class="panel-title"><a href="#collapse4" role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse4">Production Loss per Cycle (Filling + Emptying)</a><span class="glyphicon glyphicon-menu-down" style="float: right;"> </span></h4></div>
+                                <div id="collapse4" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading4">
+                                    <div class="panel-body">
+                                        <div class="col-md-12">
+                                            <form class="form-horizontal" method="post">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" id="optionsRadios1" name="optionsRadios" value="option1"><strong>Indirect Calculation: </strong>Using Volume Control / Bakcup Timers</label>
+                                                            </div>
+                                                            <div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product Loss per Filling</label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_loss_per_filling" disabled="" readonly="">
+                                                                                <div class="input-group-addon"><span>L </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product Loss per Emptying </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_loss_per_emptying" disabled="">
+                                                                                <div class="input-group-addon"><span>L </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Total Product Loss per Cycle</label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="total_product_loss_per_cycle" disabled="">
+                                                                                <div class="input-group-addon"><span>L </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" id="optionsRadios2" name="optionsRadios" value="option2"><strong>Direct Calculation:</strong> The product/water mix phase expressed as product volume recalculated to full strength</label>
+                                                            </div>
+                                                            <div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">VFS=VMP*CMP/CFS </label>
+                                                                        </div>
+                                                                        <div class="col-md-3 col-sm-8">
+                                                                            <p class="help-block">Help Button</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product Filling Mix Volume VMP(f) </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_filling_mix_volume_VMP(f)">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product A Filling Mix Concentrate CMP(f) </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_a _filling_mix_concentrate_CMP(f) ">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product A Full Strength CFS </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_a_full_strength_CFS" disabled="">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product B Filling Mix Concentrate CMP(f) </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_b_filling_mix_concentrate_CMP(f)">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product B Full Strength CFS </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_b_full_strength_CFS">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product C Filling Mix Concentrate CMP(f) </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_c_filling_mix_concentrate_CMP(f)">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label">Product C Full Strength CFS </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="product_c_full_strength_CFS">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label"><strong>Product A Loss per Cycle (f+e)</strong> </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="Product A loss_per_cycle_(f+e)" disabled="">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label"><strong>Product B Loss per Cycle (f+e)</strong> </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="Product B loss_per_cycle_(f+e)" disabled="">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                            <label class="control-label"><strong>Product C Loss per Cycle (f+e)</strong> </label>
+                                                                        </div>
+                                                                        <div class="col-md-6 col-sm-8">
+                                                                            <div class="input-group">
+                                                                                <input class="form-control" type="text" name="Product C loss_per_cycle_(f+e)" disabled="">
+                                                                                <div class="input-group-addon"><span> </span></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-2 col-sm-8">
+                                                                            <p class="help-block">Help </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <button class="btn btn-primary" type="submit">Save </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div id="heading5" class="panel-heading" role="tab">
+                                    <h4 class="panel-title"><a href="#collapse5" role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse5">Chemicals Loss per Cycle (AIC/CIP) </a><span class="glyphicon glyphicon-menu-down" style="float: right;"> </span></h4></div>
+                                <div id="collapse5" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading5">
+                                    <div class="panel-body">
+                                        <div class="col-md-12">
+                                            <form class="form-horizontal" method="post">
+                                                <div class="col-md-6">
+                                                    <p><strong><em>INCOMPLETE:</em></strong> Chemicals Loss per AIC event:</p>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button class="btn btn-primary" type="submit">Save </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div id="heading6" class="panel-heading" role="tab">
+                                    <h4 class="panel-title"><a role="button" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse6" href="#collapse6">Technical Data Sheet </a><span class="glyphicon glyphicon-menu-down" style="float: right;"> </span></h4></div>
+                                <div id="collapse6" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading6">
+                                    <div class="panel-body">
+                                        <div class="col-md-12">
+                                            <form class="form-horizontal" method="post">
+                                                <div class="col-md-7">
+                                                    <div class="form-group">
+                                                        <div class="col-md-12 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Heat Exchanger Efficiency K&nbsp;(90% - 100%)&nbsp; </label>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="heat_exchanger_efficiency" placeholder="0">
+                                                                <div class="input-group-addon"><span>% </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-12 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Cooling (Tab) Water consumption of pumps </label>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="Cooling (Tab) Water_consumption_of_pumps" placeholder="0">
+                                                                <div class="input-group-addon"><span>m3/h </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <h4><strong><span style="text-decoration: underline;">Temperature Program Settings for Product A:</span></strong> </h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label" for=" ">Product Side: </label>
+                                                        </div>
+                                                        <div class="col-md-8 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="product_side_a1 " placeholder="4">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_a2" placeholder="75">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_a3" placeholder="135">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_a4" placeholder="25">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Media Side: </label>
+                                                        </div>
+                                                        <div class="col-md-8 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="media_side_a1" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_a2" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_a3" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_a4" placeholder="xx">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <h4><strong><span style="text-decoration: underline;">Temperature Program Settings for Product B:</span></strong> </h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Product Side: </label>
+                                                        </div>
+                                                        <div class="col-md-8 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="product_side_b1" placeholder="4">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_b2" placeholder="80">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_b3" placeholder="140">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_b4" placeholder="20">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Media Side: </label>
+                                                        </div>
+                                                        <div class="col-md-8 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="media_side_b1" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_b2" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_b3" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_b4" placeholder="xx">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <h4><strong><span style="text-decoration: underline;">Temperature Program Settings for Product C:</span></strong> </h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Product Side: </label>
+                                                        </div>
+                                                        <div class="col-md-8 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="product_side_c1" placeholder="4">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_c2" placeholder="80">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_c3" placeholder="140">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="product_side_c4" placeholder="20">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Media Side: </label>
+                                                        </div>
+                                                        <div class="col-md-8 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="media_side_c1" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_c2" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_c3" placeholder="xx">
+                                                                <div class="input-group-addon"><span>- </span></div>
+                                                                <input class="form-control" type="text" name="media_side_c4" placeholder="xx">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <h4><strong><span style="text-decoration: underline;">Temperature Settings during Pre-sterilization Phase</span></strong><span style="text-decoration: underline;">:</span> </h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Sterile Water Temp. during <strong>sterilization</strong> </label>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="sterile_water_temp._during_sterilization" placeholder="0">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Sterile Water Temp. <strong>after Cooling</strong> </label>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="sterile_water_temp._after_cooling" placeholder="0">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">Steam consumption during <strong>sterilization</strong> </label>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="steam_consumption_during_sterilization" placeholder="0">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                            <label class="control-label">CW consumption during <strong>sterilization</strong> </label>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-8">
+                                                            <div class="input-group">
+                                                                <input class="form-control" type="text" name="CW_consumption_during_sterilization" placeholder="0">
+                                                                <div class="input-group-addon"><span>℃ </span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 col-sm-8">
+                                                            <p class="help-block">Help</p>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-8">
+                                                            <div class="input-group"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h4><strong><span style="text-decoration: underline;">Temperature Settings during CIP/AIC Phase</span></strong>: </h4>
+                                                    <div class="form-group">
+                                                        <div class="col-md-12">
+                                                            <p><strong><em>INCOMPLETE:</em></strong> Chemicals Loss per AIC event:</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-10">
+                                                    <div class="form-group">
+                                                        <div class="col-md-12">
+                                                            <h4><strong>Nominal Utilities Consumption (as reference)</strong> </h4>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label"><strong>Steam </strong>consumption during pre-sterilization&nbsp; </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="steam_consumption_during_pre-sterilization&nbsp;" placeholder="0">
+                                                                        <div class="input-group-addon"><span>kg/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label"><strong>Steam </strong>consumption during production&nbsp; </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="steam_consumption_during_production&nbsp;" placeholder="0">
+                                                                        <div class="input-group-addon"><span>kg/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label"><strong>Steam </strong>consumption during AIC/CIP </label>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="steam_consumption_during_AIC/CIP" placeholder="0">
+                                                                        <div class="input-group-addon"><span>kg/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-5 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label">CW consumption during pre-sterilization </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="CW_consumption_during_pre-sterilization" placeholder="0">
+                                                                        <div class="input-group-addon"><span>m3/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label">CW consumption during production </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="CW_consumption_during_production" placeholder="0">
+                                                                        <div class="input-group-addon"><span>m3/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label">CW consumption during AIC/CIP&nbsp; </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="CW_consumption_during_AIC/CIP" placeholder="0">
+                                                                        <div class="input-group-addon"><span>m3/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label"><strong>Elec. </strong>consumption during pre-sterilization &nbsp; </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="Elec._consumption_during_pre-sterilization" placeholder="0">
+                                                                        <div class="input-group-addon"><span>kWh </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label"><strong>Elec. consumption during production&nbsp;</strong> </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="Elec._consumption_during_production" placeholder="0">
+                                                                        <div class="input-group-addon"><span>kWh </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label"><strong>Elec. </strong>consumption during AIC/CIP </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="Elec._consumption_during_AIC/CIP" placeholder="0">
+                                                                        <div class="input-group-addon"><span>kWh </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label">IA consumption during pre-sterilization </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="IA_consumption_during_pre-sterilization" placeholder="0">
+                                                                        <div class="input-group-addon"><span>NI/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label">IA consumption during production&nbsp; </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="IA_consumption_during_production" placeholder="0">
+                                                                        <div class="input-group-addon"><span>NI/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-md-4 col-sm-4 col-md-4 control-label">
+                                                                    <label class="control-label">IA consumption during AIC/CIP&nbsp; </label>
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-8">
+                                                                    <div class="input-group"></div>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-8">
+                                                                    <div class="input-group">
+                                                                        <input class="form-control" type="text" name="IA_consumption_during_AIC/CIP" placeholder="0">
+                                                                        <div class="input-group-addon"><span>NI/h </span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-1 col-sm-8">
+                                                                    <p class="help-block">Help</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button class="btn btn-primary" type="submit">Save </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -26,9 +26,11 @@ STATIC_ROOT = os.path.join(PROJECT_DIR, 'var/www/static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'var/www/media')
 
-
-MIDDLEWARE_CLASSES += ['django.middleware.locale.LocaleMiddleware', ]
-MIDDLEWARE_CLASSES += ['django.contrib.flatpages.middleware.FlatpageFallbackMiddleware', ]
+MIDDLEWARE_CLASSES += [
+    'django.middleware.locale.LocaleMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'axes.middleware.FailedLoginMiddleware',
+]
 
 DJANGO_CONTRIB = [
     'django.contrib.flatpages',
@@ -43,6 +45,7 @@ EXTENSIONS = [
     'mptt',
     'django_select2',
     'ckeditor',
+    'axes',
 ]
 
 PROJECT_APPS = [
@@ -50,12 +53,11 @@ PROJECT_APPS = [
     'administration',
     # 'config',
     'demo_app',
-    'version_demo',
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS
 
-if False:
+if True:
     from .plugins.task_runner import *
     from .plugins.rest_framework import *
     from .plugins.ckeditor import *
@@ -65,7 +67,6 @@ if False:
 if SITE_ID == 1:
     DEBUG = True
     CELERY_ALWAYS_EAGER = True
-
 
 ANONYMOUS_USER_ID = -1
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', 'guardian.backends.ObjectPermissionBackend')

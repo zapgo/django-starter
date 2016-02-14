@@ -60,6 +60,8 @@ target/
 .env
 *.env
 
+etc/certs
+
 # Backup files
 *.bak 
 

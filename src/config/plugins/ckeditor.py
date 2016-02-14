@@ -1,5 +1,3 @@
-CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'
-
 CKEDITOR_CONFIGS = {
     'awesome_ckeditor': {
         'toolbar': 'Basic',
@@ -112,21 +110,25 @@ CKEDITOR_CONFIGS = {
     },
 
     'default': {
+
+        'allowedContent': True,
+        # contentsCss: [CKEDITOR.basePath + 'contents.css', '/path/to/custom.css'],
+        'contentsCss': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css',
         # 'skin': 'moono',
         # 'skin': 'minimalist',
         'skin': 'office2013',
         'toolbar_YouCustomToolbarConfig': [
-            {'name': 'tools', 'items': ['Maximize',]},
+            {'name': 'tools', 'items': ['Maximize', ]},
             {'name': 'document', 'items': ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates', ]},
             {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
             {'name': 'colors', 'items': ['TextColor', 'BGColor']},
             '/',
-            {'name': 'forms',
-             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
-                       'HiddenField']},
-            {'name': 'links', 'items': ['-', 'Link', 'Unlink', 'Anchor']},
+            # {'name': 'forms',
+            #  'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
+            #            'HiddenField']},
+            # {'name': 'links', 'items': ['-', 'Link', 'Unlink', 'Anchor']},
             {'name': 'insert',
-             'items': ['-', 'Image', 'Table', 'HorizontalRule', 'Iframe']},
+             'items': ['-', 'Image', 'Table', 'HorizontalRule', 'Iframe', 'Simplebox', 'Bstabs']},
             # '/',
             # '/',
 
@@ -146,23 +148,27 @@ CKEDITOR_CONFIGS = {
         'extraPlugins': ','.join(
                 [
                     # you extra plugins here
+                    'templates',
+                    # 'dialog',
+                    # 'dialogui',
+                    'widget',
                     'div',
+                    'clipboard',
+                    'lineutils',
                     'autolink',
                     'autoembed',
                     'embedsemantic',
                     'autogrow',
                     # 'devtools',
-                    'widget',
-                    'lineutils',
-                    'clipboard',
-                    'dialog',
-                    'dialogui',
                     'elementspath',
-                    'markdown',
+                    # 'markdown',
+                    'simplebox',
+                    'bstabs',
                 ]),
     }
 }
+CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'
+
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
 CKEDITOR_IMAGE_BACKEND = 'pillow'
-

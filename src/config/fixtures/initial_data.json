@@ -11,8 +11,8 @@
   "model": "sites.site",
   "pk": 2,
   "fields": {
-    "domain": "dstack.obitec.co",
-    "name": "DStack"
+    "domain": "www.tpam.co",
+    "name": "TPAM"
   }
 },
 {
