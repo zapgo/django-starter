@@ -5,9 +5,9 @@ Aims to automate all the boring stuff and let you develop fully production ready
 ## Introduction
 
 Component three of the OBITEC stack:
-1. [djskel](https://github.com/obitec/djskel): django skeleton app (app source, manage.py)
-2. [wheel-factory](https://github.com/jr-minnaar/wheel-factory): build python wheel packages and create lightweight django application container (app runtime, requirements.txt)
-3. __dstack__: development and deployment setup (app config, docker-compose.yml, fabric_tasks.py)
+  1. [djskel](https://github.com/obitec/djskel): django skeleton app (app source, manage.py)
+  2. [wheel-factory](https://github.com/jr-minnaar/wheel-factory): build python wheel packages and create lightweight django application container (app runtime, requirements.txt)
+  3. __dstack__: development and deployment setup (app config, docker-compose.yml, fabric_tasks.py)
 
 Relies on:
 - [docker-machine](https://docs.docker.com/machine/) for automatic vps creation and deployment
