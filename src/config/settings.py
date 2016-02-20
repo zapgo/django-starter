@@ -46,6 +46,7 @@ EXTENSIONS = [
     'django_select2',
     'ckeditor',
     'axes',
+    'bootstrap3',
 ]
 
 PROJECT_APPS = [

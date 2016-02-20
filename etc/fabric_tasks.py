@@ -1,5 +1,5 @@
 from __future__ import with_statement
-from fabric.api import env, local, run, task, settings, abort, put, cd, prefix, get, sudo
+from fabric.api import env, local, run, prompt, task, settings, abort, put, cd, prefix, get, sudo
 from fabric.contrib.project import rsync_project
 import dotenv
 import os
@@ -33,7 +33,7 @@ env.postgres_data = '/var/lib/postgresql/data'
 
 def install_help():
     print('To install Pythor 3 Fabric, run:')
-    print('pip install https://github.com/akaariai/fabric/archive/py34.zip')
+    print('pip install Fabric3')
 
 
 def lol(cmd: str = '--help', path: str = '', live: bool = False):
@@ -221,7 +221,8 @@ def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
 def postgres_everywhere():
     # local('echo ${DOCKER_HOST}')
     local('sudo sed -i "" "/[[:space:]]postgres$/d" /etc/hosts')
-    local('sudo /bin/bash -c "echo $(echo ${DOCKER_HOST} | grep -oE \'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\')    postgres >> /etc/hosts"')
+    local(
+        'sudo /bin/bash -c "echo $(echo ${DOCKER_HOST} | grep -oE \'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\')    postgres >> /etc/hosts"')
 
 
 def datr(module: str = 'auth', target: str = 'local') -> None:
@@ -270,19 +271,52 @@ def clean_unused_volumes():
         'martin/docker-cleanup-volumes')
 
 
+def release(live: bool = False, tag: str = 'tmp'):
+    # if tag == 'tmp':
+    #     release = prompt('Please supply a release name', validate=r'^\w+-\d+(\.\d+)?$')
+
+    answer = prompt('Did you remember to first commit all changes??', default='no', )
+    if answer == 'yes':
+        try:
+            local('git tag %s' % tag)
+        except:
+            pass
+        postgres('backup', live=live, tag=tag)
+        docker('tag {image_name}:latest {image_name}:{tag}'.format(
+                image_name=env.image_name, tag=tag))
+    else:
+        print("# Commit changes using:\n$ git commit -a -m 'message...'")
+
+
+def rollback(live: bool = False, tag: str = 'tmp'):
+    answer = prompt('Did you remember to first release?', default='no', )
+    # print(answer)
+    if answer == 'yes':
+        local('git branch development')
+        local('git reset --hard %s' % tag)
+        postgres('restore', live=live, tag=tag)
+        docker('tag {image_name}:{tag} {image_name}:latest'.format(
+                image_name=env.image_name, tag=tag))
+    else:
+        print("# You can do a release by running:\n$ fab release:tag='tag'")
+
+
 def update_self():
     """
     Function to update dstack. Please make sure all changes are commited before running.
     Still requires cleanup and testing.
     :return:
     """
-    local('git commit -a -m "Autocommit before dstack update"')
+    try:
+        local('git commit -a -m "Autocommit before dstack update"')
+    except:
+        pass
 
     fp = './dstack-master/'
     local('wget https://github.com/jr-minnaar/dstack/archive/master.tar.gz')
     local('tar -zxvf master.tar.gz '
-          '--strip=1 {fp}etc {fp}bin '
-          '{fp}.dockerignore {fp}.gitignore '
+          '--strip=1 {fp}etc {fp}src/config/ '
+          '{fp}.gitignore '
           '{fp}fabfile.py {fp}docker-compose.yml'.format(fp=fp))
     local('rm master.tar.gz')
 
