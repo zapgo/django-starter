@@ -46,13 +46,13 @@ cinst -y notepadplusplus
 # if (Test-PendingReboot) { Invoke-Reboot }
 
 ## Python
-# $PackageName = 'miniconda'
-# $InstallerType = 'EXE'
-# $Url = 'https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe'
-# $Url64 = 'https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe'
-# $Args = "/InstallationType=AllUsers /RegisterPython=1 /AddToPath=1 /S"
-# $ValidExitCodes = @(0)
-# Install-ChocolateyPackage "$PackageName" "$InstallerType" "$Args" "$Url" "$Url64"  -validExitCodes $ValidExitCodes
+$PackageName = 'miniconda'
+$InstallerType = 'EXE'
+$Url = 'https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe'
+$Url64 = 'https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe'
+$Args = "/AddToPath=1 /RegisterPython=1 /InstallationType=AllUsers /S /D=C:\miniconda"
+$ValidExitCodes = @(0)
+Install-ChocolateyPackage "$PackageName" "$InstallerType" "$Args" "$Url" "$Url64"  -validExitCodes $ValidExitCodes
 
 pip install fabric3
 
