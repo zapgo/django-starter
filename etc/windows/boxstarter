@@ -25,7 +25,7 @@ npm install requirejs -g
 npm install bower-requirejs -g
 
 npm install less -g
-nom install csso -g
+npm install csso -g
 npm install node-sass -g
 
 npm install grunt -g
@@ -80,8 +80,8 @@ cinst -y slack
 if (Test-PendingReboot) { Invoke-Reboot }
 
 # Pinning Things
-Install-ChocolateyPinnedTaskBarItem "$env:programfiles\Sublime Text 3\sublime_text.exe"
-Install-ChocolateyFileAssociation ".txt" "$env:programfiles\Sublime Text 3\sublime_text.exe"
+# Install-ChocolateyPinnedTaskBarItem "$env:programfiles\Sublime Text 3\sublime_text.exe"
+# Install-ChocolateyFileAssociation ".txt" "$env:programfiles\Sublime Text 3\sublime_text.exe"
 
 # Let's get Updates, too
-#Install-WindowsUpdate -acceptEula
+# Install-WindowsUpdate -acceptEula
