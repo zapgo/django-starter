@@ -1,60 +1,58 @@
 # Configure Windows
-# Set-WindowsExplorerOptions -EnableShowHiddenFilesFoldersDrives -EnableShowFileExtensions
+Set-WindowsExplorerOptions -EnableShowHiddenFilesFoldersDrives -EnableShowFileExtensions
 
 Update-ExecutionPolicy Unrestricted
 
+
+# Packages
+cinst -y cmder -pre
+
+## Node, npm
+cinst -y nodejs.install
+npm install -g npm-windows-upgrade
+
+npm install grunt-cli -g
+npm install grunt -g
+npm install less -g
+npm install grunt-contrib-less -g
+npm install grunt-contrib-uglify -g
+npm install grunt-typescript -g
+npm install bower -g
+npm install node-sass -g
+npm install grunt-sass -g
+
+
+## Git
+cinst -y git.install
+#cinst -y poshgit
+#cinst -y git-credential-winstore
+cinst -y github
+
+
+## Editors
+cinst -y SublimeText3
+cinst -y SublimeText3.PackageControl
+cinst -y sublimetext3-contextmenu
+cinst -y SublimeText3.PowershellAlias
+
+if (Test-PendingReboot) { Invoke-Reboot }
+
+## Python
 $PackageName = 'miniconda'
 $InstallerType = 'EXE'
 $Url = 'https://repo.continuum.io/miniconda/Miniconda-3.10.1-Windows-x86.exe'
 $Url64 = 'https://repo.continuum.io/miniconda/Miniconda-3.10.1-Windows-x86_64.exe'
-$Args = "/InstallationType=AllUsers /S"
+$Args = "/InstallationType=AllUsers /RegisterPython=1 /AddToPath=1 /S"
 $ValidExitCodes = @(0)
  
 Install-ChocolateyPackage "$PackageName" "$InstallerType" "$Args" "$Url" "$Url64"  -validExitCodes $ValidExitCodes
 
+pip install fabric3
 
-# Packages
-#cinst -y cmder -pre
-
-## Node, npm
-#cinst -y nodejs.install
-#npm install -g npm-windows-upgrade
-
-#npm install grunt-cli -g
-#npm install grunt -g
-#npm install less -g
-#npm install grunt-contrib-less -g
-#npm install grunt-contrib-uglify -g
-#npm install grunt-typescript -g
-#npm install bower -g
-#npm install node-sass -g
-#npm install grunt-sass -g
-
-
-## Git
-#cinst -y git.install
-#cinst -y poshgit
-#cinst -y git-credential-winstore
-#cinst -y github
-
-
-## Editors
-#cinst -y SublimeText3
-#cinst -y SublimeText3.PackageControl
-#cinst -y sublimetext3-contextmenu
-#cinst -y SublimeText3.PowershellAlias
-
-#if (Test-PendingReboot) { Invoke-Reboot }
-
-## Python
-
-# cinst -y python
-# cinst -y pip
-# cinst -y easy.install
 
 ## DevOps Stuff
-#cinst -y virtualbox
-#cinst -y virtualbox.extensionpack
+# cinst -y virtualbox
+# cinst -y virtualbox.extensionpack
 
 # Docker is currently not included, since it doesn't support Windows 10 at this time.
 # To install, manually download and run https://github.com/docker/toolbox/releases/download/v1.8.1a/DockerToolbox-1.8.1a-windows-10-test.exe
@@ -73,7 +71,7 @@ cinst -y PowerShell
 #if (Test-PendingReboot) { Invoke-Reboot }
 
 # Pinning Things
-#Install-ChocolateyPinnedTaskBarItem "$env:programfiles\Google\Chrome\Application\chrome.exe"
+Install-ChocolateyPinnedTaskBarItem "$env:programfiles\Sublime Text 3\sublime_text.exe"
 Install-ChocolateyFileAssociation ".txt" "$env:programfiles\Sublime Text 3\sublime_text.exe"
 
 # Let's get Updates, too
