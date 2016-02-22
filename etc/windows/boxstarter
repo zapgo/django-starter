@@ -13,27 +13,27 @@ cinst -y vim
 cinst -y curl
 
 ## Git
-cinst -y git.install
-cinst -y poshgit
-cinst -y github
+# cinst -y git.install
+# cinst -y poshgit
+# cinst -y github
 
 ## Node, npm
-cinst -y nodejs.install
+# cinst -y nodejs.install
 
-npm install bower -g
-npm install requirejs -g
-npm install bower-requirejs -g
+# npm install bower -g
+# npm install requirejs -g
+# npm install bower-requirejs -g
 
-npm install less -g
-npm install csso -g
-npm install node-sass -g
+# npm install less -g
+# npm install csso -g
+# npm install node-sass -g
 
-npm install grunt -g
-npm install grunt-cli -g
-npm install grunt-contrib-less -g
-npm install grunt-contrib-uglify -g
-npm install grunt-sass -g
-npm install grunt-bower-requirejs -g
+# npm install grunt -g
+# npm install grunt-cli -g
+# npm install grunt-contrib-less -g
+# npm install grunt-contrib-uglify -g
+# npm install grunt-sass -g
+# npm install grunt-bower-requirejs -g
 
 
 ## Editors
@@ -43,7 +43,7 @@ npm install grunt-bower-requirejs -g
 # cinst -y SublimeText3.PowershellAlias
 cinst -y notepadplusplus
 
-if (Test-PendingReboot) { Invoke-Reboot }
+# if (Test-PendingReboot) { Invoke-Reboot }
 
 ## Python
 $PackageName = 'miniconda'
@@ -65,7 +65,7 @@ pip install fabric3
 # Docker is currently not included, since it doesn't support Windows 10 at this time.
 # To install, manually download and run https://github.com/docker/toolbox/releases/download/v1.8.1a/DockerToolbox-1.8.1a-windows-10-test.exe
 
-if (Test-PendingReboot) { Invoke-Reboot }
+# if (Test-PendingReboot) { Invoke-Reboot }
 
 ## Nice to have
 cinst -y teamviewer
@@ -77,7 +77,7 @@ cinst -y slack
 # cinst -y DotNet4.0
 # cinst -y DotNet4.5
 
-if (Test-PendingReboot) { Invoke-Reboot }
+# if (Test-PendingReboot) { Invoke-Reboot }
 
 # Pinning Things
 # Install-ChocolateyPinnedTaskBarItem "$env:programfiles\Sublime Text 3\sublime_text.exe"
