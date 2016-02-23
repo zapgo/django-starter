@@ -1,10 +1,8 @@
-FROM drsync
+FROM ubuntu
 
-ENV http_proxy=http://proxy.dcl.tetrapak.com:8080
+ENV http_proxy 'http://proxy.dcl.tetrapak.com:8080'
 
-RUN apt-get update && apt-get install -y rsync ssh
+RUN apt-get update && apt-get install -y rsync ssh vim wget tree git curl fabric
 
-COPY .ssh /root/.ssh
-RUN chmod -R 600 /root/.ssh
-
-VOLUME
+HOME /Users/canary
+USER canary

@@ -1,8 +1,15 @@
-from __future__ import with_statement
 from fabric.api import env, local, run, prompt, task, settings, abort, put, cd, prefix, get, sudo
+from fabric.context_managers import hide
 from fabric.contrib.project import rsync_project
 import dotenv
 import os
+import sys
+import shutil
+import re
+from fabric.api import env, local
+from fabric.colors import red, green, yellow, white
+from typing import Tuple
+
 
 # Load local .env file
 
@@ -301,22 +308,189 @@ def rollback(live: bool = False, tag: str = 'tmp'):
         print("# You can do a release by running:\n$ fab release:tag='tag'")
 
 
-def update_self():
+def update_self(files: Tuple[str] = (1, 'src/config', 'fabfile.py', 'docker-compose.yml')):
     """
     Function to update dstack. Please make sure all changes are commited before running.
     Still requires cleanup and testing.
+    :param files:
     :return:
     """
-    try:
-        local('git commit -a -m "Autocommit before dstack update"')
-    except:
-        pass
+    extract_files = ' {fp}'.join(files)
 
-    fp = './dstack-master/'
+    with settings(warn_only=True):
+        local('git commit -a -m "Autocommit before dstack update"')
+
     local('wget https://github.com/jr-minnaar/dstack/archive/master.tar.gz')
-    local('tar -zxvf master.tar.gz '
-          '--strip=1 {fp}etc {fp}src/config/ '
-          '{fp}.gitignore '
-          '{fp}fabfile.py {fp}docker-compose.yml'.format(fp=fp))
+    local('tar -zxvf master.tar.gz --strip=1' + extract_files.format(fp='dstack-master/'))
     local('rm master.tar.gz')
 
+
+
+dependency_versions = {
+    'git': '2.7.1',
+    'python': '3.5.1',
+    'conda': '3.14.1',
+    'pip': '8.0.2',
+    'rsync': '2.6.9',
+    'wget': '1.17.1',
+    'curl': '7.43.0',
+    'grep': '2.5.1',
+    'ssh': '1',
+    'docker': '1.10.1',
+    'docker-compose': '1.6.0',
+    'docker-machine': '0.6.0',
+    'fab': '1.10.2',
+    'brew': '0.9.5',
+}
+
+import logging
+
+
+def doctor(log_level: int = logging.INFO):
+    log_level = int(log_level)
+    dependencies = [
+        'git', 'python', 'conda', 'pip', 'rsync', 'wget', 'curl', 'grep', 'ssh',
+        'docker', 'docker-compose', 'docker-machine', 'fab', 'node', 'bower'
+    ]
+
+    if os.name == 'nt':
+        dependencies += ['cinst', ]
+    elif sys.platform == 'darwin':
+        dependencies += ['brew', ]
+
+    unmet = 0
+
+    if log_level <= logging.DEBUG:
+        print('Dependency checkup...')
+    for dependency in dependencies:
+        path = shutil.which(dependency)
+        version = ['', ]
+        if path:
+            if dependency not in ['ssh', ]:
+                version_raw = get_result(path + ' --version')
+                try:
+                    version = re.findall(r'\d+\.\d+\.\d?', version_raw.stderr if version_raw.stderr else version_raw)
+                except:
+                    pass
+            if not version:
+                version = ['', ]
+
+            if log_level <= logging.DEBUG:
+                print('{0} {1:15} {2:20} {3}'.format(
+                    green(' O', bold=True), dependency, yellow(version[0], bold=True), os.path.abspath(path)))
+        else:
+            if log_level <= logging.WARNING:
+                print(red(' X', bold=True), ' ', dependency)
+                unmet += 1
+
+    if unmet > 0:
+        if log_level <= logging.WARNING:
+            print(red('Please install missing dependencies', bold=True))
+    else:
+        if log_level <= logging.INFO:
+            print(green('Everything is looking good!'))
+
+    if log_level <= logging.INFO:
+        print(white('\nEnvironment checkup', bold=True))
+
+    envs = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy', 'conda_default_env']
+    for e in envs:
+        value = os.environ.get(e, '')
+        if value:
+            if log_level <= logging.INFO:
+                print('{0} {1:15} = {2:20}'.format(
+                    yellow(' >', bold=True), e, yellow(value, bold=True)))
+        else:
+            if log_level <= logging.INFO:
+                print('{0} {1:15}'.format(
+                    yellow(' >', bold=True), e))
+
+    if log_level <= logging.INFO:
+        print(green('Everything is looking good!'))
+
+    if log_level <= logging.INFO:
+        print(white('\nPython virtualenv checkup', bold=True))
+    check3 = 0
+    conda_envs = get_result('conda info --envs')
+
+    conda_envs = conda_envs.split('\n')[2:]
+    for cenv in conda_envs:
+        if cenv.find('*') and cenv.find(env.virtual_env) != -1:
+            if log_level <= logging.INFO:
+                print(green('Project environment found and active:'))
+                print(white(cenv))
+            check3 = 1
+        elif cenv.find(env.virtual_env) != -1:
+            if log_level <= logging.WARNING:
+                print(yellow('Project environment found, but not activated'))
+                print(white('To fix, run:\n > activate %s' % env.virtual_env))
+            check3 = 1
+        else:
+            pass
+            #if log_level <= logging.ERROR:
+            #    print(red('Project environment does not exist'))
+            #    print(white('To fix, run:\n > conda env create -f etc/environment.yml'))
+            #check3 += 1
+
+    if check3 != 1:
+        if log_level <= logging.INFO:
+            print(red('Project environment does not exist'))
+
+    if log_level <= logging.INFO:
+        print(white('\nDocker checkup', bold=True))
+
+    # check3 = 0
+    # default_machine = get_result('docker-machine ls --filter name=default')
+    # print(default_machine.split('\n')[1])
+    # if default_machine.find('Running') != -1 and default_machine.find('*') != -1:
+    #     print(green('Default machine running and active'))
+    # elif default_machine.find('*') != -1:
+    #     print(yellow('Default machine found but not running'))
+
+    check_default_machine()
+
+    if log_level <= logging.INFO:
+        print(white('\nChecking for .env file', bold=True))
+
+    mandatory_envs = ['SITE_ID', 'DEBUG']
+    if os.path.exists('./.env'):
+        if log_level <= logging.INFO:
+            print(green('Found .env file'))
+        os.environ.get('PATH')
+    else:
+        if log_level <= logging.ERROR:
+            print(red('.env does not exist!'))
+    if log_level <= logging.INFO:
+        print(white('\nChecking for postgres entry in hosts file', bold=True))
+    try:
+        import socket
+        ip = socket.gethostbyname('postgres')
+        if ip:
+            if log_level <= logging.INFO:
+                print(green("Postgres IP is %s" % ip))
+    except:
+        if log_level <= logging.ERROR:
+            print(red("Hostname not set!"))
+
+
+def get_result(cmd: str = 'echo "Hello, World!'):
+    with hide('output', 'running', 'warnings'), settings(warn_only=True):
+        result = local(cmd, capture=True)
+        return result if result else ''
+
+
+def check_default_machine():
+    status = get_result('docker-machine status default')
+    # line = red('#' * 74)
+    env_cmd = {
+        'nt': 'FOR /f "tokens=*" %i IN (\'docker-machine env default\') DO %i',
+        'posix': 'eval $(docker-machine env default)'
+    }
+    print(yellow('Needs configuring:'), green('# Run this command to configure your shell: '))
+    # print(line)
+    if status == 'Running':
+        print(' > ' + env_cmd[os.name])
+    else:
+        print(' > docker-machine start default')
+        print(' > ' + env_cmd[os.name])
+    # print(line)
