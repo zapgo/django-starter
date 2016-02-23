@@ -354,7 +354,7 @@ def doctor(log_level: int = logging.INFO):
     ]
 
     if os.name == 'nt':
-        dependencies += ['cinst', ]
+        dependencies += ['choco', ]
     elif sys.platform == 'darwin':
         dependencies += ['brew', ]
 
