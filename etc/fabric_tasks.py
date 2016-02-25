@@ -241,6 +241,16 @@ def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
     compose('start postgres', live=live)
 
 
+def reset_local_postgres():
+    import time
+    timestamp = int(time.time())
+    postgres('backup', tag=str(timestamp))
+    docker('stop %s_postgres_1' % env.project_name)
+    docker('rm -v %s_postgres_1' % env.project_name)
+    docker('rm -v %s_db_data_1' % env.project_name)
+    compose('up -d postgres')
+
+
 def postgres_everywhere():
     # local('echo ${DOCKER_HOST}')
     local('sudo sed -i "" "/[[:space:]]postgres$/d" /etc/hosts')
