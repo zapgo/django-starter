@@ -1,22 +1,12 @@
-name: tpam
+name: dstack
 dependencies:
 - python=3.5
-- pillow
-- psycopg2
+- pandas
+- pycrypto
+# If not Windows, uncomment
+# - psycopg2
 - pip:
+  - pillow
   - django
   - gunicorn
-  - celery
-  - redis
-  - requests
-  - django-import-export
-  - djangorestframework
-  - django-reversion
-  - django-mptt
-  - django-custom-field
-  - django-admin-sortable
-  - django-select2
-  - feincms
-  - django-ckeditor
-  - django-custom-field==2.9
-  - python-digitalocean
+

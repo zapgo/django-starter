@@ -1,5 +1,5 @@
 from __future__ import with_statement
-from fabric.api import env, local
+from fabric.api import env, local, run, cd
 import dotenv
 import os
 import digitalocean
@@ -191,3 +191,27 @@ runcmd:
   - docker run -d --privileged -p 1723:1723 -v /srv/chap-secrets:/etc/ppp/chap-secrets mobtitude/vpn-pptp
   - cd /srv/ && docker-compose up -d
 """
+
+
+def install_appserver():
+    run("mkdir -p /srv/certs /srv/config /srv/apps/default /srv/htdocs /srv/build")
+
+    with cd('/srv/apps/default'):
+        fp = 'dstack-master/'
+        run('wget https://github.com/jr-minnaar/dstack/archive/master.tar.gz')
+        run('tar -zxvf master.tar.gz --strip=1 {fp}etc {fp}src {fp}docker-compose.yml'.format(fp=fp))
+        run('rm master.tar.gz')
+
+    run('cp /srv/apps/default/etc/server/docker-services.yml /srv/services.yml')
+
+    run('docker-compose -f /srv/services.yml up -d nginx-proxy letsencrypt-plugin', live=True)
+    run('docker pull kmaginary/wheel-factory', live=True)
+
+    with cd('/srv/build/'):
+        fp = 'wheel-factory-master'
+        run('wget https://github.com/jr-minnaar/wheel-factory/archive/master.tar.gz')
+        run('tar -zxvf master.tar.gz '
+              '--strip=1'.format(fp=fp))
+        run('rm master.tar.gz')
+
+    run("chown -R %s:%s /srv/" % (env.username, env.username))

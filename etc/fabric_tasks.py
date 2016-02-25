@@ -1,18 +1,16 @@
-from fabric.api import env, local, run, prompt, task, settings, abort, put, cd, prefix, get, sudo
+from fabric.api import env, local, run, task, settings, abort, put, cd, prefix, get, sudo, shell_env, open_shell, prompt
+from fabric.colors import red, green, yellow, white
 from fabric.context_managers import hide
 from fabric.contrib.project import rsync_project
-import dotenv
 import os
 import sys
 import shutil
+import logging
 import re
-from fabric.api import env, local
-from fabric.colors import red, green, yellow, white
-from typing import Tuple
-
+import dotenv
+from typing import Callable, Tuple
 
 # Load local .env file
-
 env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')
 dotenv.load_dotenv(env.local_dotenv_path)
 
@@ -29,18 +27,24 @@ env.build_dir = '/srv/build'
 env.dotenv_path = os.path.join(env.project_dir, '.env')
 
 env.virtual_env = os.environ.get('VIRTUAL_ENV', '')
+
 activate = {
-    'osx': 'source activate %s' % env.virtual_env,
-    'windows': 'activate %s' % env.virtual_env,
+    'posix': 'source activate %s' % env.virtual_env,
+    'nt': 'activate %s' % env.virtual_env,
 }
-env.activate = activate['osx']
+env.os = os.name
+env.activate = activate[env.os]
 
 env.postgres_data = '/var/lib/postgresql/data'
 
+env.project_path = os.path.dirname(os.path.dirname(__file__))
+
+env.log_level = logging.DEBUG
+
 
 def install_help():
-    print('To install Pythor 3 Fabric, run:')
-    print('pip install Fabric3')
+    print('To install Python 3 Fabric, run:')
+    print('pip Fabric3')
 
 
 def lol(cmd: str = '--help', path: str = '', live: bool = False):
@@ -52,9 +56,17 @@ def lol(cmd: str = '--help', path: str = '', live: bool = False):
 
 
 def compose(cmd: str = '--help', path: str = '', live: bool = False) -> None:
-    env_vars = 'IMAGE_NAME={image_name}'.format(image_name=env.image_name)
-    template = "{env_vars} bash -c 'docker-compose {cmd}'".format(env_vars=env_vars, cmd=cmd)
-    lol(cmd=template, path=path, live=live)
+    env_vars = 'IMAGE_NAME={image_name} '.format(image_name=env.image_name)
+    template = {
+        'posix': '%sdocker-compose {cmd}' % env_vars if live else '',
+        'nt': 'set PWD=%cd%&& docker-compose {cmd}',
+    }
+
+    try:
+        lol(cmd=template[env.os].format(cmd=cmd), path=path, live=live)
+    except SystemExit:
+        if not live:
+            check_default_machine()
 
 
 def docker_base(cmd: str = '--help', live: bool = False) -> None:
@@ -70,21 +82,35 @@ def manage(cmd: str = 'help', live: bool = False) -> None:
     if live:
         compose('run --rm webapp ./manage.py {cmd}'.format(cmd=cmd), live=True)
     else:
-        local('./src/manage.py {cmd}'.format(cmd=cmd))
+        with prefix(env.activate):
+            local('python ./src/manage.py {cmd}'.format(cmd=cmd))
+
+
+def pip(cmd: str = '--help') -> None:
+    with prefix(env.activate):
+        local('pip {cmd}'.format(cmd=cmd))
+
+
+def conda(cmd: str = '--help') -> None:
+    with prefix(env.activate):
+        local('conda {cmd}'.format(cmd=cmd))
+
+
+# import posixpath
 
 
 def filr(cmd: str = 'get', file: str = '.envs') -> None:
     if cmd == 'get':
-        get(os.path.join(env.project_dir, file), file)
+        get(os.path.join(env.project_dir, file, ), file)
     elif cmd == 'put':
         put(file, os.path.join(env.project_dir, file))
         run('chmod go+r {0}'.format(os.path.join(env.project_dir, file)))
 
 
 # Tasks
-def init_dev():
-    local('touch .env')
-    local('conda env update')
+def init():
+    # local('touch .env')
+    local('conda env create -f etc\environment.yml')
     local('mkdir -p var/www/static')
     local('mkdir -p var/www/media')
 
@@ -134,16 +160,6 @@ def upload_app():
             ), delete=True)
 
 
-def test_rsync():
-    local(
-            'rsync --delete --exclude ".git" --exclude ".gitignore" --exclude "__pycache__" --exclude "*.pyc" --exclude ".DS_Store" --exclude "environment.yml" --exclude "fabfile.py" --exclude "Makef ile" --exclude ".idea" --exclude "bower_components" --exclude "node_modules" --exclude "static" --exclude "var" --exclude "server.env" --exclude ".env.example" --exclude "requirements.txt"  --exclude "README.md" -pthrvz /data tpam:/srv/apps/tpam')
-
-
-upload_command = """
-rsync --delete --exclude ".git" --exclude ".gitignore" --exclude "__pycache__" --exclude "*.pyc" --exclude ".DS_Store" --exclude "environment.yml" --exclude "fabfile.py" --exclude "Makef ile" --exclude ".idea" --exclude "bower_components" --exclude "node_modules" --exclude "static" --exclude "var" --exclude "server.env" --exclude ".env.example" --exclude "requirements.txt"  --exclude "README.md" -pthrvz /data tpam:/srv/apps/tpam
-"""
-
-
 def upload_www():
     rsync_project('/srv/htdocs/%s/' % env.project_name, './var/www/', exclude=('node_modules',))
 
@@ -167,7 +183,7 @@ def deploy():
 
 def make_wheels():
     put('./etc/build-requirements.txt', '/srv/build/build-requirements.txt')
-    compose('-f service.yml -p %s run --rm wheel-factory' % env.project_name, '/srv/build')
+    compose(cmd='-f service.yml -p %s run --rm wheel-factory' % env.project_name, path='/srv/build', live=True)
 
 
 def make_default_webapp():
@@ -214,7 +230,7 @@ def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
 
     params = {
         'volumes_from': '--volumes-from {project_name}_db_data_1'.format(project_name=env.project_name),
-        'volumes': '--volume ${PWD}/var/backups:/backup',
+        'volumes': '--volume var/backups:/backup',
         'image': 'postgres',
         'cmd': actions[cmd],
     }
@@ -228,8 +244,8 @@ def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
 def postgres_everywhere():
     # local('echo ${DOCKER_HOST}')
     local('sudo sed -i "" "/[[:space:]]postgres$/d" /etc/hosts')
-    local(
-        'sudo /bin/bash -c "echo $(echo ${DOCKER_HOST} | grep -oE \'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\')    postgres >> /etc/hosts"')
+    local('sudo /bin/bash -c "echo $(echo ${DOCKER_HOST} | '
+          'grep -oE \'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\')    postgres >> /etc/hosts"')
 
 
 def datr(module: str = 'auth', target: str = 'local') -> None:
@@ -238,7 +254,7 @@ def datr(module: str = 'auth', target: str = 'local') -> None:
     :param target:
 
     Manually run this command:
-        fab manage:'dumpdata -v 0 --indent 2 demo_app > ./src/data_dump.json',live=1
+        fab manage:'dumpdata -v 0 --indent 2 assessment > ./src/data_dump.json',live=1
         fab filr:get,src/data_dump.json
         fab postgr
         fab manage:'loaddata ./src/dump_data.json'
@@ -263,14 +279,9 @@ def datr(module: str = 'auth', target: str = 'local') -> None:
 
 # DANGER!!!
 def clean_unused_volumes():
-    try:
+    with settings(warn_only=True):
         run('docker rm -v  $(docker ps --no-trunc -aq status=exited)')
-    except:
-        pass
-    try:
         run('docker rmi $(docker images -q -f "dangling=true")')
-    except:
-        pass
 
     run('docker run --rm'
         '-v /var/run/docker.sock:/var/run/docker.sock '
@@ -325,7 +336,6 @@ def update_self(files: Tuple[str] = (1, 'src/config', 'fabfile.py', 'docker-comp
     local('rm master.tar.gz')
 
 
-
 dependency_versions = {
     'git': '2.7.1',
     'python': '3.5.1',
@@ -343,16 +353,52 @@ dependency_versions = {
     'brew': '0.9.5',
 }
 
-import logging
+
+def doctor():
+    checkup(check_depencies,
+            description='Checking dependencies...',
+            success='All dependencies installed',
+            error='Please install missing dependencies', )
+
+    checkup(check_virtual_env,
+            description='Python virtualenv checkup...',
+            success='Everything is looking good',
+            error = 'Project environment does not exist. To fix, run\n > conda env create -f etc/environment.yml',)
+
+    check_default_machine()
+    check_env_vars()
+    check_postgres()
 
 
-def doctor(log_level: int = logging.INFO):
-    log_level = int(log_level)
+def checkup(check_function: Callable[[None], dict], description: str = 'Checking...',
+            success: str = 'No problem', error: str = 'Errors found'):
+    if env.log_level <= logging.DEBUG:
+        print(description)
+
+    result = check_function()
+
+    if result['success']:
+        if env.log_level <= logging.INFO:
+            print(green(success))
+    else:
+        if env.log_level <= logging.WARNING:
+            print(red(error, bold=True))
+
+
+def check_depencies():
+    success = True
+
     dependencies = [
         'git', 'python', 'conda', 'pip', 'rsync', 'wget', 'curl', 'grep', 'ssh',
         'docker', 'docker-compose', 'docker-machine', 'fab', 'node', 'bower'
     ]
 
+    # platform_deps = {
+    #     'nt': ['choco', ],
+    #     'darwin': ['brew', ],
+    # }
+
+    # dependencies += platform_deps[env.os]
     if os.name == 'nt':
         dependencies += ['choco', ]
     elif sys.platform == 'darwin':
@@ -360,8 +406,6 @@ def doctor(log_level: int = logging.INFO):
 
     unmet = 0
 
-    if log_level <= logging.DEBUG:
-        print('Dependency checkup...')
     for dependency in dependencies:
         path = shutil.which(dependency)
         version = ['', ]
@@ -375,68 +419,45 @@ def doctor(log_level: int = logging.INFO):
             if not version:
                 version = ['', ]
 
-            if log_level <= logging.DEBUG:
+            if env.log_level <= logging.DEBUG:
                 print('{0} {1:15} {2:20} {3}'.format(
-                    green(' O', bold=True), dependency, yellow(version[0], bold=True), os.path.abspath(path)))
+                        green(' O', bold=True), dependency, yellow(version[0], bold=True), os.path.abspath(path)))
         else:
-            if log_level <= logging.WARNING:
+            if env.log_level <= logging.WARNING:
                 print(red(' X', bold=True), ' ', dependency)
-                unmet += 1
+
+            unmet += 1
 
     if unmet > 0:
-        if log_level <= logging.WARNING:
-            print(red('Please install missing dependencies', bold=True))
-    else:
-        if log_level <= logging.INFO:
-            print(green('Everything is looking good!'))
+        success = False
 
-    if log_level <= logging.INFO:
-        print(white('\nEnvironment checkup', bold=True))
+    return {'success': success, }
 
-    envs = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy', 'conda_default_env']
-    for e in envs:
-        value = os.environ.get(e, '')
-        if value:
-            if log_level <= logging.INFO:
-                print('{0} {1:15} = {2:20}'.format(
-                    yellow(' >', bold=True), e, yellow(value, bold=True)))
-        else:
-            if log_level <= logging.INFO:
-                print('{0} {1:15}'.format(
-                    yellow(' >', bold=True), e))
 
-    if log_level <= logging.INFO:
-        print(green('Everything is looking good!'))
+def check_virtual_env():
+    success = True
 
-    if log_level <= logging.INFO:
-        print(white('\nPython virtualenv checkup', bold=True))
-    check3 = 0
     conda_envs = get_result('conda info --envs')
-
     conda_envs = conda_envs.split('\n')[2:]
+
     for cenv in conda_envs:
-        if cenv.find('*') and cenv.find(env.virtual_env) != -1:
-            if log_level <= logging.INFO:
+        project_env_line = cenv.find(env.virtual_env) != -1
+
+        if cenv.find('*') and project_env_line:
+            if env.log_level <= logging.INFO:
                 print(green('Project environment found and active:'))
                 print(white(cenv))
-            check3 = 1
-        elif cenv.find(env.virtual_env) != -1:
-            if log_level <= logging.WARNING:
+        elif project_env_line:
+            if env.log_level <= logging.WARNING:
                 print(yellow('Project environment found, but not activated'))
-                print(white('To fix, run:\n > activate %s' % env.virtual_env))
-            check3 = 1
-        else:
-            pass
-            #if log_level <= logging.ERROR:
-            #    print(red('Project environment does not exist'))
-            #    print(white('To fix, run:\n > conda env create -f etc/environment.yml'))
-            #check3 += 1
+                print(white('To fix, run:\n > activate tpam'))
+            success = False
 
-    if check3 != 1:
-        if log_level <= logging.INFO:
-            print(red('Project environment does not exist'))
+    return {'success': success, }
 
-    if log_level <= logging.INFO:
+
+def check_default_machine():
+    if env.log_level <= logging.INFO:
         print(white('\nDocker checkup', bold=True))
 
     # check3 = 0
@@ -447,29 +468,67 @@ def doctor(log_level: int = logging.INFO):
     # elif default_machine.find('*') != -1:
     #     print(yellow('Default machine found but not running'))
 
-    check_default_machine()
+    status = get_result('docker-machine status default')
+    line = red('#' * 74)
+    env_cmd = {
+        'nt': 'FOR /f "tokens=*" %i IN (\'docker-machine env default\') DO %i',
+        'posix': 'eval $(docker-machine env default)'
+    }
+    print(yellow('WARNING:'), green('# Run this command to configure your shell: '))
+    print(line)
+    if status == 'Running':
+        print(env_cmd[env.os])
+    else:
+        print('docker-machine start default')
+        print(env_cmd[env.os])
+    print(line)
 
-    if log_level <= logging.INFO:
+
+def check_env_vars():
+    if env.log_level <= logging.INFO:
+        print(white('\nEnvironment checkup', bold=True))
+
+    envs = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy', 'conda_default_env']
+    for e in envs:
+        value = os.environ.get(e, '')
+        if value:
+            if env.log_level <= logging.INFO:
+                print('{0} {1:15} = {2:20}'.format(
+                        yellow(' >', bold=True), e, yellow(value, bold=True)))
+        else:
+            if env.log_level <= logging.INFO:
+                print('{0} {1:15}'.format(
+                        yellow(' >', bold=True), e))
+
+    if env.log_level <= logging.INFO:
+        print(green('Everything is looking good!'))
+
+    if env.log_level <= logging.INFO:
         print(white('\nChecking for .env file', bold=True))
 
     mandatory_envs = ['SITE_ID', 'DEBUG']
     if os.path.exists('./.env'):
-        if log_level <= logging.INFO:
+        if env.log_level <= logging.INFO:
             print(green('Found .env file'))
-        os.environ.get('PATH')
+        os.environ.get('PATH', '')
     else:
-        if log_level <= logging.ERROR:
+        if env.log_level <= logging.ERROR:
             print(red('.env does not exist!'))
-    if log_level <= logging.INFO:
+
+
+def check_postgres():
+    # docker-machine ssh {host_name} -C "echo `pbpaste` >> .ssh/authorized_keys"
+
+    if env.log_level <= logging.INFO:
         print(white('\nChecking for postgres entry in hosts file', bold=True))
     try:
         import socket
         ip = socket.gethostbyname('postgres')
         if ip:
-            if log_level <= logging.INFO:
+            if env.log_level <= logging.INFO:
                 print(green("Postgres IP is %s" % ip))
     except:
-        if log_level <= logging.ERROR:
+        if env.log_level <= logging.ERROR:
             print(red("Hostname not set!"))
 
 
@@ -477,20 +536,3 @@ def get_result(cmd: str = 'echo "Hello, World!'):
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         result = local(cmd, capture=True)
         return result if result else ''
-
-
-def check_default_machine():
-    status = get_result('docker-machine status default')
-    # line = red('#' * 74)
-    env_cmd = {
-        'nt': 'FOR /f "tokens=*" %i IN (\'docker-machine env default\') DO %i',
-        'posix': 'eval $(docker-machine env default)'
-    }
-    print(yellow('Needs configuring:'), green('# Run this command to configure your shell: '))
-    # print(line)
-    if status == 'Running':
-        print(' > ' + env_cmd[os.name])
-    else:
-        print(' > docker-machine start default')
-        print(' > ' + env_cmd[os.name])
-    # print(line)

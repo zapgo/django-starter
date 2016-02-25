@@ -1,0 +1,8 @@
+django-debug-toolbar
+python-dotenv
+Fabric3==1.10.2.post3
+python-digitalocean
+# if unix:
+psycopg2
+# elif windows:
+# etc/windows/psycopg2-2.6.1-cp35-none-win_amd64.whl
