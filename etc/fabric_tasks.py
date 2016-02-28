@@ -197,8 +197,8 @@ def make_default_webapp():
         # run('docker tag default_webapp kmaginary/apps:%s' % env.project_name)
 
 
-def push_image():
-    docker('push %s' % env.image_name)
+def push_image(live: bool = False):
+    docker('push %s' % env.image_name, live=live)
 
 
 def update_runtime():
@@ -546,3 +546,4 @@ def get_result(cmd: str = 'echo "Hello, World!'):
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         result = local(cmd, capture=True)
         return result if result else ''
+
