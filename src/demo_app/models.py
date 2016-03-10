@@ -1,6 +1,7 @@
+from django.core.urlresolvers import reverse
 from django.db import models
-
-# Create your models here.
+from django.utils.translation import ugettext_lazy as _
+from mptt.models import MPTTModel
 
 
 class NaturalManager(models.Manager):
@@ -64,3 +65,63 @@ class NaturalModel(models.Model):
 
 class Dream(NaturalModel):
     pass
+
+
+class Thing(MPTTModel):
+    name = models.CharField(max_length=250)
+
+    description = models.TextField(blank=True, default='')
+
+    AP = 'AP'
+    EC = 'EC'
+    GS = 'GS'
+    CI = 'CI'
+    SL = 'SL'
+
+    STRUCTURAL_LINK_OPTIONS = (
+        (AP, _('part')),  # _('Aggregation-Participation')),
+        (EC, _('characteristic')),  # _('Exhibition-Characterization')),
+        (GS, _('type')),  # _('Generalization-Specialization')),
+        (CI, _('instance')),  # _('Classification-Instantiation')),
+        (SL, _('state')),  # _('Classification-Instantiation')),
+    )
+
+    link_type = models.CharField(
+        max_length=2, choices=STRUCTURAL_LINK_OPTIONS,
+        default=GS, verbose_name=_('Structural Link Type'),
+        help_text=_('https://en.wikipedia.org/wiki/Object_Process_Methodology#Structural_and_Procedural_Links'))
+
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+
+    data = JSONField(blank=True, null=True)
+
+    order = models.PositiveIntegerField(blank=True, default=0)
+
+    def get_absolute_url(self):
+        return reverse('demo_app:thing_detail', kwargs={'pk': str(self.id)})
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['tree_id', 'lft']
+        verbose_name = _('Thing')
+        verbose_name_plural = _('Things')
+
+        # class MPTTMeta:
+        #     order_insertion_by = ['order']
+
+
+class SubThing(Thing):
+    special_attribute = models.CharField(max_length=123)
+
+    class Meta:
+        ordering = ['tree_id', 'lft']
+        verbose_name = _('Sub Thing')
+        verbose_name_plural = _('Sub Things')
+
+
+class SubThingFiltered(SubThing):
+    class Meta:
+        proxy = True
+

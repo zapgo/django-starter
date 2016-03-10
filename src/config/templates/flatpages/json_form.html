@@ -1,0 +1,150 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="/">{% trans 'Home' %}</a>
+        &rsaquo; {{ flatpage.title }}
+    </div>
+{% endblock %}
+
+
+{% block content %}
+    <h1>{% trans flatpage.title %}</h1>
+
+    {% block object-tools %}
+        <ul class="object-tools">
+            <li><a href="{% url "admin:flatpages_flatpage_change" flatpage.id %}"
+                   class="historylink">{% trans 'Edit' %}</a></li>
+
+            {% if request.session.assessment_id %}
+                <li><a href="{% url "assessment:assessment_detail" request.session.assessment_id %}"
+                       class="viewsitelink">{% trans 'assessment overview' %} </a></li>
+            {% endif %}
+
+        </ul>
+    {% endblock %}
+
+    <div class="well">
+        {{ flatpage.content }}
+    </div>
+    {% if request.GET.id %}
+
+        <button class="btn btn-primary" id="btn_data_copy">Save data</button>
+
+
+        <form id="actual" method="post" action="{% url 'assessment:data_update' request.GET.id %}"
+              style="margin-top: 100px;">
+            {% csrf_token %}
+            <textarea cols="80" id="id_data" name="data" rows="2" style="display: block;"
+                      title="Thing Data">{}</textarea>
+        </form>
+
+    {% else %}
+        <button class="btn btn-primary" disabled="true">No object specified</button>
+    {% endif %}
+
+
+
+
+    <script>
+        // AJAX SETUP
+        // --------------------------------------------------------------------------------------------------------------//
+        var csrftoken = Cookies.get('csrftoken');
+        // console.log(csrftoken);
+
+        function csrfSafeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $(window).ready(function () {
+            getThingData({{ request.GET.id }});
+
+            $('#jsonDataFields').on('submit', function () {
+                return false;
+            });
+
+            $("#btn_data_copy").click(function () {
+                var jsonForm = JSON.stringify($('#jsonDataFields').serializeObject());
+                $('textarea#id_data').val(jsonForm);
+                console.log(jsonForm);
+                $('#actual').submit();
+            });
+
+
+        });
+
+        $.fn.serializeObject = function () {
+            var o = {};
+            var a = this.serializeArray();
+            $.each(a, function () {
+                if (o[this.name] !== undefined) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    o[this.name] = this.value || '';
+                }
+            });
+            return o;
+        };
+
+        function getThingData(thingId) {
+            $.ajax({
+                type: 'GET',
+                url: '/en/assessment/data/log/' + thingId + '/json/?format=json',
+                dataType: 'json',
+                success: function (data) {
+                    var jsonString = JSON.stringify(data);
+
+                    $.each(data, function (key, value) {
+                        var input = $("input[name='" + key + "']");
+                        if (input.prop('type') === 'checkbox') {
+                            if (value == 'on') {
+                                input.prop("checked", true);
+                            } else {
+                                input.prop("checked", false);
+                            }
+                        } else {
+                            input.val(value);
+                        }
+                    });
+
+                    $('#id_data').val(jsonString);
+                }
+            });
+
+        }
+
+        function updateData(jsonForm, form) {
+            // console.log(form.action);
+            $.ajax({
+                url: form.action,
+                type: "POST",
+                dataType: 'json',
+                data: jsonForm,
+
+                success: function (json) {
+                    console.log('Success');
+                },
+                error: function (xhr) {
+                    console.log(xhr.status + ": " + "Not Valid");
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}
+
+

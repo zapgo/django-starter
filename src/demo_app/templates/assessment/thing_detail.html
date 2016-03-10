@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; {{ thing.name }}
+    </div>
+{% endblock %}
+
+{% block title %}{{ thing.name }}{% endblock %}
+
+{% block content %}
+
+    <h1 class="title">{{ thing.parent.name }} |
+        <small>{{ thing.name }}</small>
+    </h1>
+
+    {% block object-tools %}
+        <ul class="object-tools">
+            <li><a href="{% url "admin:assessment_thing_change" thing.id %}"
+                   class="viewsitelink">{% trans 'Edit' %}</a></li>
+
+
+            <li><a href="{% url "assessment:assessment_detail" request.session.assessment_id %}"
+                   class="viewsitelink">{% trans 'assessment overview' %} </a></li>
+
+        </ul>
+    {% endblock %}
+
+
+    <div class="row">
+        <div class="col-xs-12 col-md-5">
+            <h3>Extra Data</h3>
+            <table class="table table-striped table-compact">
+                <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                {% for k,v in thing.data.items %}
+                    <tr>
+                        <th>{{ k }}</th>
+                        <td>{{ v }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+
+
+{% endblock %}
