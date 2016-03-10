@@ -423,12 +423,6 @@ def check_depencies():
         'docker', 'docker-compose', 'docker-machine', 'fab', 'node', 'bower'
     ]
 
-    # platform_deps = {
-    #     'nt': ['choco', ],
-    #     'darwin': ['brew', ],
-    # }
-
-    # dependencies += platform_deps[env.os]
     if os.name == 'nt':
         dependencies += ['choco', ]
     elif sys.platform == 'darwin':
@@ -483,35 +477,50 @@ def check_virtual_env():
                 print(white('To fix, run:\n > activate tpam'))
             success = False
 
-    return {'success': success,}
+    return {'success': success, }
 
 
 def check_default_machine():
     if env.log_level <= logging.INFO:
         print(white('\nDocker checkup', bold=True))
 
-    # check3 = 0
-    # default_machine = get_result('docker-machine ls --filter name=default')
-    # print(default_machine.split('\n')[1])
-    # if default_machine.find('Running') != -1 and default_machine.find('*') != -1:
-    #     print(green('Default machine running and active'))
-    # elif default_machine.find('*') != -1:
-    #     print(yellow('Default machine found but not running'))
-
-    status = get_result('docker-machine status default')
-    line = red('#' * 74)
     env_cmd = {
         'nt': 'FOR /f "tokens=*" %i IN (\'docker-machine env default\') DO %i',
         'posix': 'eval $(docker-machine env default)'
     }
-    print(yellow('WARNING:'), green('# Run this command to configure your shell: '))
-    print(line)
-    if status == 'Running':
-        print(env_cmd[env.os])
+
+    line = red('#' * 74)
+
+    # check3 = 0
+    default_machine = get_result('docker-machine ls --filter name=default')
+    machines = default_machine.split('\n')
+    if len(machines) > 1:
+        default_machine = machines[1]
+        if default_machine.find('Running') != -1 and default_machine.find('*') != -1:
+            if env.log_level <= logging.INFO:
+                print(green('Default machine running and active'))
+        elif default_machine.find('Running') != -1 and default_machine.find('-') != -1:
+            if env.log_level <= logging.INFO:
+                print(yellow('Warning: Default machine running but not active'))
+                print(line)
+                print(' > ' + env_cmd[env.os])
+                print(line)
+        else:
+            if env.log_level <= logging.INFO:
+                print(yellow('Warning: Default machine found but not running'))
+                print(line)
+                print(' > docker-machine start default')
+                print(' > ' + env_cmd[env.os])
+                print(line)
+
     else:
-        print('docker-machine start default')
-        print(env_cmd[env.os])
-    print(line)
+        if env.log_level <= logging.WARNING:
+            print(red('Error: Default machine does not exist'))
+            print(line)
+            print(white('Create using:\n > docker-machine create --driver virtualbox default'))
+            print(' > docker-machine start default')
+            print(' > ' + env_cmd[env.os])
+            print(line)
 
 
 def check_env_vars():
