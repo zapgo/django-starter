@@ -1,19 +1,16 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
-
 {% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; {{ flatpage.title }}
-</div>
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; {{ flatpage.title }}
+    </div>
 {% endblock %}
 
-{% block title %}{{ flatpage.title }}{% endblock %}
 
 {% block content %}
-
-<h1>{% trans flatpage.title %}</h1>
+    <h1>{% trans flatpage.title %}</h1>
 
     {% block object-tools %}
         <ul class="object-tools">
@@ -22,6 +19,6 @@
         </ul>
     {% endblock %}
 
-    {{  flatpage.content }}
+    {{ flatpage.content }}
 
 {% endblock %}

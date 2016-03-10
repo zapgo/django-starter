@@ -24,9 +24,8 @@
         {% block branding %}{% endblock %}
         </div>
         {% block usertools %}
-        {% if has_permission %}
+        {% if request.user %}
         <div id="user-tools">
-            {% include 'admin/select_language.html' %} /
             {% block welcome-msg %}
                 {% trans 'Welcome,' %}
                 <strong>{% firstof user.get_short_name user.get_username %}</strong>.
@@ -81,8 +80,7 @@
     </div>
     <!-- END Content -->
 
-    {% block footer %}<div id="footer">
-        <small style="background-color: white; bottom: 5px; right: 5px; position: fixed; color: lightgrey">Version 0.0.5</small></div>{% endblock %}
+    {% block footer %}<div id="footer"></div>{% endblock %}
 </div>
 <!-- END Container -->
 

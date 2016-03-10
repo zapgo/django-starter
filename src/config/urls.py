@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework import routers
 from demo_app.views import JobViewSet, DreamViewSet
+from administration.admin import admin_site
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -38,11 +39,11 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    # url(r'^index/', include(flatpage_urls)),
+    url(r'^myadmin/', admin_site.urls),
+    # url(r'^admin/$', RedirectView.as_view(url='/')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^demo/', include('demo_app.urls', namespace='demo_app')),
 )
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

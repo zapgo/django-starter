@@ -1,0 +1,139 @@
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+
+<style>
+    rect {
+        stroke: #000;
+        fill: none;
+    }
+
+    svg {
+        shape-rendering: crispEdges;
+    }
+
+    .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+    }
+
+</style>
+
+<script>
+
+    var margin = {top: 10, right: 20, bottom: 30, left: 60},
+            width = 960 - margin.left - margin.right,
+            height = 450 - margin.top - margin.bottom,
+            color = d3.scale.category10(),
+            n = d3.format(",.0f"),
+            p = d3.format("%"),
+            data = [
+                {cost_item: "Utilities", cost_driver: "Production", value: 3840},
+                {cost_item: "Utilities", cost_driver: "Unplanned maintenance", value: 1920},
+                {cost_item: "Utilities", cost_driver: "Planned maintenance", value: 960},
+                {cost_item: "Utilities", cost_driver: "Operational delays", value: 400},
+
+                {cost_item: "Labour", cost_driver: "Production", value: 640},
+                {cost_item: "Labour", cost_driver: "Unplanned maintenance", value: 960},
+                {cost_item: "Labour", cost_driver: "Planned maintenance", value: 640},
+                {cost_item: "Labour", cost_driver: "Operational delays", value: 400},
+
+                {cost_item: "Waste", cost_driver: "Production", value: 320},
+                {cost_item: "Waste", cost_driver: "Unplanned maintenance", value: 480},
+                {cost_item: "Waste", cost_driver: "Planned maintenance", value: 640},
+                {cost_item: "Waste", cost_driver: "Operational delays", value: 400}
+            ];
+
+    var nest = d3.nest()
+            .key(function (d) {
+                return d.cost_driver;
+            })
+            .key(function (d) {
+                return d.cost_item;
+            });
+
+    var treemap = d3.layout.treemap()
+            .mode("slice-dice")
+            //.padding(function(d) { return d.depth > 1 ? 2 : 0; })
+            .size([width, height])
+            .children(function (d) {
+                return d.values;
+            })
+            .sort(null);
+
+    var svg = d3.select("#marimekko").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("margin-left", -margin.left + "px")
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .datum({values: nest.entries(data)})
+            .call(chart);
+
+    svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + treemap.size()[1] + ")")
+            .call(d3.svg.axis().scale(d3.scale.linear().range([0, treemap.size()[0]])).tickFormat(d3.format("%")));
+
+    svg.append("g")
+            .attr("class", "y axis")
+            .call(d3.svg.axis().scale(d3.scale.linear().range([treemap.size()[1], 0])).tickFormat(d3.format("%")).orient("left"));
+
+    function chart(selection) {
+        selection.each(function () {
+            var cell = d3.select(this).selectAll("g.cell")
+                    .data(treemap.nodes);
+
+            var cellEnter = cell.enter().append("g")
+                    .attr("class", "cell")
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    });
+
+            cellEnter.filter(function (d) {
+                return d.depth > 2;
+            }).append("rect")
+                    .style("fill", function (d) {
+                        return d.children ? null : color(d.cost_item);
+                    });
+
+            cellEnter.append("title");
+
+            d3.transition(cell)
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    })
+                    .select("rect")
+                    .attr("width", function (d) {
+                        return d.dx;
+                    })
+                    .attr("height", function (d) {
+                        return d.dy;
+                    });
+
+            cell.select("title")
+                    .text(function (d) {
+                        return d.children ? null : title(d);
+                    });
+
+            d3.transition(cell.exit())
+                    .attr("width", 1e-6)
+                    .attr("height", 1e-6)
+                    .remove();
+        });
+    }
+
+    function title(d) {
+        return d.cost_driver + ": " + d.parent.key + ": " + n(d.value);
+    }
+
+    function transition() {
+        data.forEach(function (d) {
+            d.value = Math.random() * 1000;
+        });
+        svg.datum({values: nest.entries(data)})
+                .transition()
+                .duration(1000)
+                .call(chart);
+    }
+
+</script>

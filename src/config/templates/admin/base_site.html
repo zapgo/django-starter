@@ -1,0 +1,129 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('TPAM Portal') }}{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name"><a href="/">{{ site_header|default:_('TPAM Portal') }}</a></h1>
+{% endblock %}
+
+{% block extrastyle %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
+
+    <script type="text/javascript">
+        function dismissAddAnotherPopup(win) {
+            win.close();
+        }
+        function dismissChangeRelatedObjectPopup(win) {
+            win.close();
+        }
+    </script>
+
+    {{ block.super }}
+
+    <style>
+        body {
+            font-size: 14px;
+            font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+            color: #333;
+        }
+
+        #branding {
+            padding-top: 7px;
+        }
+
+        #header {
+            height: auto;
+        }
+
+        td, th {
+            padding: 8px;
+        }
+
+        h1 {
+            font-size: 20px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 500;
+            line-height: 20px;
+        }
+
+        .collapse {
+            display: inherit;
+        }
+
+        #changelist #toolbar form #searchbar {
+            height: auto !important;
+        }
+
+        .submit-row a.deletelink {
+            height: auto !important;
+        }
+
+        a, a:link, a:visited {
+            text-decoration: none;
+        }
+
+        span.label a, a.btn-primary {
+            color: #fff;
+        }
+
+        .delete-confirmation form .cancel-link {
+            height: 40px;
+            line-height: inherit;
+        }
+
+        .drag_handle {
+            width: auto !important;
+            height: auto !important;
+            background: inherit !important;
+            vertical-align: inherit !important;
+        }
+
+        .lfra {
+            float: left;
+            text-align: right;
+            width: 50%;
+            padding-right: 10px;
+        }
+
+        .rfla {
+            float: right;
+            text-align: left;
+            width: 50%;
+        }
+    </style>
+
+{% endblock %}
+
+{% block nav-global %}
+    {#    {% include 'admin/select_language.html' %}#}
+
+    {% if request.session.assessment_id %}
+        <a href="{% url 'assessment:assessment_detail' request.session.assessment_id %}">Assessment Overview</a>
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="/">{% trans 'Home' %}</a>
+        {% if title %} &rsaquo; {{ title }}{% endif %}
+    </div>
+{% endblock %}
+
+
+{% block footer %}
+    <div id="footer">
+        <small style="background-color: white; bottom: 5px; right: 5px; position: fixed; color: lightgrey">
+            {{ version }}
+        </small>
+    </div>
+{% endblock %}
