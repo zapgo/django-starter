@@ -7,7 +7,7 @@ Aims to automate all the boring stuff and let you develop fully production ready
 Component three of the OBITEC stack:
   1. [djskel](https://github.com/obitec/djskel): django skeleton app (app source, manage.py)
   2. [wheel-factory](https://github.com/jr-minnaar/wheel-factory): build python wheel packages and create lightweight django application container (app runtime, requirements.txt)
-  3. __dstack__: development and deployment setup (app config, docker-compose.yml, fabric_tasks.py)
+  3. __[wheel-factory](https://github.com/jr-minnaar/dstack)__: development and deployment setup (app config, docker-compose.yml, fabric_tasks.py)
 
 Relies on:
 - [docker-machine](https://docs.docker.com/machine/) for automatic vps creation and deployment
@@ -15,7 +15,7 @@ Relies on:
 - [letsencrypt](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) for automatic TSL certificates.
 - [fabric](http://www.fabfile.org/) for automating tasks locally and on server. ([python3 clone](https://github.com/akaariai/fabric))
 - [cloud-init](https://cloudinit.readthedocs.org/en/latest/) for app host deployments.
-- postgres for both development and deployment
+- postgres everywhere, for both development and deployment
 
 Currently developed and tested for [Digital Ocean](https://www.digitalocean.com/).
 
@@ -40,12 +40,19 @@ Attempts to follow the [twelve-factor app](http://12factor.net/) methodology.
 - Follow instructions [here](https://github.com/jr-minnaar/goeie-hoop)
 
 
+### Ubuntu
+- You should able to figure it out.
+
 ## Testing
 
 ```bash
     git clone https://github.com/jr-minnaar/dstack
-    cd dstack/etc
-    conda env create
+    cd dstack
+    conda env create -f etc/environment.yml
+    pip install -r requirements.txt
+    pip install -r etc/[posix|windows]/dev-requirements.txt
+    mv etc/.env.example .env  # only IMAGE_NAME is mandatory
+    fab doctor
 ```
 
     Developed by JR Minnaar.
