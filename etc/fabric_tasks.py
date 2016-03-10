@@ -102,12 +102,12 @@ def filr(cmd: str = 'get', file: str = '.envs', use_sudo: bool = False) -> None:
         get(posixpath.join(env.project_dir, file), file)
     elif cmd == 'put':
         put(file, posixpath.join(env.project_dir, file), use_sudo=use_sudo)
-        run('chmod go+r {0}'.format(os.path.join(env.project_dir, file)))
+        run('chmod go+r {0}'.format(posixpath.join(env.project_dir, file)))
 
 
 # Tasks
 def init():
-    # local('conda env update -f etc/environment.yml')
+    local('conda env update -f etc/environment.yml')
     local('pip install -r requirements.txt')
     if os.name == 'nt':
         local('pip install etc\windows\psycopg2-2.6.1-cp35-none-win_amd64.whl')
@@ -233,7 +233,11 @@ def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
                 data_path=env.postgres_data),
     }
 
-    backup_to_path = os.path.join(env.project_dir if live else env.project_path, 'var/backups')
+    if live:
+        backup_to_path = posixpath.join(env.project_dir, 'var/backups')
+    else:
+        backup_to_path = os.path.join(env.project_path, 'var/backups')
+
     params = {
         'volumes_from': '--volumes-from {0}_db_data_1'.format(env.project_name),
         'volumes': '--volume {0}:/backup'.format(backup_to_path),

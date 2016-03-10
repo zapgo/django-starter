@@ -1,4 +1,3 @@
-from __future__ import with_statement
 from fabric.api import env, local, run, cd
 import dotenv
 import os
