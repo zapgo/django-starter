@@ -38,8 +38,10 @@
                 var jqScript = document.createElement('script');
                 var bsScript = document.createElement('script');
 
-                jqScript.src = 'https://code.jquery.com/jquery-2.2.0.min.js';
-                bsScript.src = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js';
+                jqScript.src = "/static/bower_components/jquery/dist/jquery.min.js";
+                bsScript.src = "/static/bower_components/bootstrap/dist/js/bootstrap.min.js";
+                // jqScript.src = 'https://code.jquery.com/jquery-2.2.0.min.js';
+                // bsScript.src = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js';
 
                 var editorHead = ev.editor.document.$.head;
                 editorHead.appendChild(jqScript);
