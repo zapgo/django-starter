@@ -9,6 +9,7 @@ import logging
 import re
 import dotenv
 from typing import Callable, Tuple
+import posixpath
 
 # Load local .env file
 env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')
@@ -19,7 +20,7 @@ env.use_ssh_config = True
 env.hosts = [os.environ.get('HOST_NAME', ''), ]
 
 env.project_name = os.environ.get('PROJECT_NAME', '')
-env.project_dir = os.path.join('/srv/apps/', env.project_name)
+env.project_dir = posixpath.join('/srv/apps/', env.project_name)
 env.virtual_host = os.environ.get('VIRTUAL_HOST', '')
 env.image_name = os.environ.get('IMAGE_NAME', '')
 env.build_dir = '/srv/build'
@@ -58,8 +59,8 @@ def lol(cmd: str = '--help', path: str = '', live: bool = False):
 def compose(cmd: str = '--help', path: str = '', live: bool = False) -> None:
     env_vars = 'IMAGE_NAME={image_name} '.format(image_name=env.image_name)
     template = {
-        'posix': '%sdocker-compose {cmd}' % env_vars if live else '',
-        'nt': 'set PWD=%cd%&& docker-compose {cmd}',
+        'posix': '%sdocker-compose {cmd}' % (env_vars if live else ''),
+        'nt': '%sdocker-compose {cmd}' % (env_vars if live else 'set PWD=%cd%&& '),
     }
 
     try:
@@ -80,10 +81,10 @@ def docker(cmd: str = '--help', live: bool = False) -> None:
 
 def manage(cmd: str = 'help', live: bool = False) -> None:
     if live:
-        compose('run --rm webapp ./manage.py {cmd}'.format(cmd=cmd), live=True)
+        compose('run --rm webapp manage.py {cmd}'.format(cmd=cmd), live=True)
     else:
         with prefix(env.activate):
-            local('python ./src/manage.py {cmd}'.format(cmd=cmd))
+            local('python src/manage.py {cmd}'.format(cmd=cmd))
 
 
 def pip(cmd: str = '--help') -> None:
@@ -96,23 +97,26 @@ def conda(cmd: str = '--help') -> None:
         local('conda {cmd}'.format(cmd=cmd))
 
 
-# import posixpath
-
-
-def filr(cmd: str = 'get', file: str = '.envs') -> None:
+def filr(cmd: str = 'get', file: str = '.envs', use_sudo: bool = False) -> None:
     if cmd == 'get':
-        get(os.path.join(env.project_dir, file, ), file)
+        get(posixpath.join(env.project_dir, file), file)
     elif cmd == 'put':
-        put(file, os.path.join(env.project_dir, file))
+        put(file, posixpath.join(env.project_dir, file), use_sudo=use_sudo)
         run('chmod go+r {0}'.format(os.path.join(env.project_dir, file)))
 
 
 # Tasks
 def init():
-    # local('touch .env')
-    local('conda env create -f etc\environment.yml')
-    local('mkdir -p var/www/static')
-    local('mkdir -p var/www/media')
+    # local('conda env update -f etc/environment.yml')
+    local('pip install -r requirements.txt')
+    if os.name == 'nt':
+        local('pip install etc\windows\psycopg2-2.6.1-cp35-none-win_amd64.whl')
+    # TODO handle path creation natively
+    try:
+        local('mkdir %s' % os.path.abspath('./var/www/static'))
+        local('mkdir %s' % os.path.abspath('./var/www/media'))
+    except:
+        pass
 
 
 def prepare():
@@ -150,14 +154,14 @@ def sqlite_reset():
 
 def upload_app():
     rsync_project(
-            env.project_dir, './',
-            exclude=(
-                '.git', '.gitignore', '__pycache__', '*.pyc', '.DS_Store', 'environment.yml',
-                'fabfile.py', 'Makefile', '.idea',
-                'bower_components', 'node_modules',
-                'static', 'var',
-                'server.env', '.env.example', 'requirements.txt', 'README.md',
-            ), delete=True)
+        env.project_dir, './',
+        exclude=(
+            '.git', '.gitignore', '__pycache__', '*.pyc', '.DS_Store', 'environment.yml',
+            'fabfile.py', 'Makefile', '.idea',
+            'bower_components', 'node_modules',
+            'static', 'var',
+            'server.env', '.env.example', 'requirements.txt', 'README.md',
+        ), delete=True)
 
 
 def upload_www():
@@ -191,7 +195,7 @@ def make_default_webapp():
 
     with cd('/srv/build'):
         run('docker build -t {image_name} .'.format(
-                image_name=env.image_name,
+            image_name=env.image_name,
         ))
 
         # run('docker tag default_webapp kmaginary/apps:%s' % env.project_name)
@@ -215,30 +219,40 @@ def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
     :return:
     """
 
-    backup_path = '/backup/db_backup.{tag}.tar.gz'.format(tag=tag)
+    backup_name = 'db_backup.{tag}.tar.gz'.format(tag=tag)
+    backup_path = posixpath.join('/backup/', backup_name)
 
     actions = {
         'backup':
             'tar -zcpf {backup_path} {data_path}'.format(
-                    backup_path=backup_path,
-                    data_path=env.postgres_data),
+                backup_path=backup_path,
+                data_path=env.postgres_data),
         'restore':
             'bash -c "tar xpf {backup_path} && chmod -R 700 {data_path}"'.format(
-                    backup_path=backup_path,
-                    data_path=env.postgres_data),
+                backup_path=backup_path,
+                data_path=env.postgres_data),
     }
 
+    backup_to_path = os.path.join(env.project_dir if live else env.project_path, 'var/backups')
     params = {
-        'volumes_from': '--volumes-from {project_name}_db_data_1'.format(project_name=env.project_name),
-        'volumes': '--volume var/backups:/backup',
+        'volumes_from': '--volumes-from {0}_db_data_1'.format(env.project_name),
+        'volumes': '--volume {0}:/backup'.format(backup_to_path),
         'image': 'postgres',
         'cmd': actions[cmd],
     }
 
     docker_run_once = 'docker run --rm {volumes_from} {volumes} {image} {cmd}'
+    if live and cmd == 'restore':
+        answer = prompt('Do you first want to upload the backup?', default='no', )
+        if answer == 'yes':
+            filr(cmd='put', file=os.path.join('var/backups/', backup_name), use_sudo=True)
     compose('stop postgres', live=live)
     lol(docker_run_once.format(**params), live=live)
     compose('start postgres', live=live)
+    if live and cmd == 'backup':
+        answer = prompt('Did you want to download backup?', default='no', )
+        if answer == 'yes':
+            filr(cmd='get', file=posixpath.join('var/backups/', backup_name))
 
 
 def reset_local_postgres():
@@ -272,17 +286,19 @@ def datr(module: str = 'auth', target: str = 'local') -> None:
 
     if target == 'remote':
         manage('dumpdata -v 0 --indent 2 --natural-foreign {module} > ./src/data_dump.json'.format(
-                module=module), live=False)
+            module=module), live=False)
         filr('put', 'src/data_dump.json')
         postgres('backup', live=True)
         manage('loaddata data_dump.json', live=True)
 
     elif target == 'local':
         manage('dumpdata -v 0 --indent 2 --natural-foreign {module} > ./src/data_dump.json'.format(
-                module=module), live=True)
+            module=module), live=True)
         filr('get', 'src/data_dump.json')
-        postgres('backup', live=False)
-        manage('loaddata ./src/data_dump.json', live=False)
+        answer = prompt('Do you want to install data locally?', default='no', )
+        if answer == 'yes':
+            postgres('backup', live=False)
+            manage('loaddata ./src/data_dump.json', live=False)
     else:
         print('Invalid option. Target must be local or remote')
 
@@ -311,7 +327,7 @@ def release(live: bool = False, tag: str = 'tmp'):
             pass
         postgres('backup', live=live, tag=tag)
         docker('tag {image_name}:latest {image_name}:{tag}'.format(
-                image_name=env.image_name, tag=tag))
+            image_name=env.image_name, tag=tag))
     else:
         print("# Commit changes using:\n$ git commit -a -m 'message...'")
 
@@ -324,7 +340,7 @@ def rollback(live: bool = False, tag: str = 'tmp'):
         local('git reset --hard %s' % tag)
         postgres('restore', live=live, tag=tag)
         docker('tag {image_name}:{tag} {image_name}:latest'.format(
-                image_name=env.image_name, tag=tag))
+            image_name=env.image_name, tag=tag))
     else:
         print("# You can do a release by running:\n$ fab release:tag='tag'")
 
@@ -365,19 +381,19 @@ dependency_versions = {
 
 
 def doctor():
-    checkup(check_depencies,
-            description='Checking dependencies...',
-            success='All dependencies installed',
-            error='Please install missing dependencies', )
-
     checkup(check_virtual_env,
             description='Python virtualenv checkup...',
             success='Everything is looking good',
-            error = 'Project environment does not exist. To fix, run\n > conda env create -f etc/environment.yml',)
+            error='Project environment does not exist. To fix, run\n > conda env create -f etc/environment.yml', )
 
     check_default_machine()
     check_env_vars()
     check_postgres()
+
+    checkup(check_depencies,
+            description='Checking dependencies...',
+            success='All dependencies installed',
+            error='Please install missing dependencies', )
 
 
 def checkup(check_function: Callable[[None], dict], description: str = 'Checking...',
@@ -431,7 +447,7 @@ def check_depencies():
 
             if env.log_level <= logging.DEBUG:
                 print('{0} {1:15} {2:20} {3}'.format(
-                        green(' O', bold=True), dependency, yellow(version[0], bold=True), os.path.abspath(path)))
+                    green(' O', bold=True), dependency, yellow(version[0], bold=True), os.path.abspath(path)))
         else:
             if env.log_level <= logging.WARNING:
                 print(red(' X', bold=True), ' ', dependency)
@@ -441,7 +457,7 @@ def check_depencies():
     if unmet > 0:
         success = False
 
-    return {'success': success, }
+    return {'success': success,}
 
 
 def check_virtual_env():
@@ -463,7 +479,7 @@ def check_virtual_env():
                 print(white('To fix, run:\n > activate tpam'))
             success = False
 
-    return {'success': success, }
+    return {'success': success,}
 
 
 def check_default_machine():
@@ -504,11 +520,11 @@ def check_env_vars():
         if value:
             if env.log_level <= logging.INFO:
                 print('{0} {1:15} = {2:20}'.format(
-                        yellow(' >', bold=True), e, yellow(value, bold=True)))
+                    yellow(' >', bold=True), e, yellow(value, bold=True)))
         else:
             if env.log_level <= logging.INFO:
                 print('{0} {1:15}'.format(
-                        yellow(' >', bold=True), e))
+                    yellow(' >', bold=True), e))
 
     if env.log_level <= logging.INFO:
         print(green('Everything is looking good!'))
@@ -546,4 +562,3 @@ def get_result(cmd: str = 'echo "Hello, World!'):
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         result = local(cmd, capture=True)
         return result if result else ''
-

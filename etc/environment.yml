@@ -9,4 +9,3 @@ dependencies:
   - pillow
   - django
   - gunicorn
-

@@ -1,0 +1,5 @@
+psycopg2==2.6.1
+django-debug-toolbar
+python-dotenv
+Fabric3==1.10.2.post3
+python-digitalocean
