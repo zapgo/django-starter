@@ -6,11 +6,7 @@ logger = logging.getLogger('django')
 
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------#
-from django.apps import AppConfig
 
 
-# APP CONFIG
+# MANAGERS
 # ---------------------------------------------------------------------------------------------------------------------#
-class CustomConfig(AppConfig):
-    name = 'administration'
-    verbose_name = 'Administration'

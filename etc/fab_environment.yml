@@ -1,0 +1,10 @@
+name: django-starter
+dependencies:
+- python=3.5
+- pandas
+- pycrypto
+- psycopg2
+- pip:
+  - pillow
+  - django
+  - gunicorn
