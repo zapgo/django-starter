@@ -11,18 +11,12 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from .plugins.api_keys import *
+from .plugins.secrets import *
 from .plugins.rest_framework import *
+from .plugins.database import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$jb4u!^j9so#g4*n_+ructl@z!c#_z@$cqw*$5-^ld#k=4v1(6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -71,18 +65,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -182,41 +164,10 @@ EXTENSIONS = [
 
 PROJECT_APPS = [
     'administration',
-    'zapgo_engine',
+    'starter_app',
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS
-
-
-CURRENCY_MAPPING = {
-    'currency': {
-        'USD': {
-            'SFOX': 'USD'
-        },
-        'ZAR': {
-            'BITX': 'ZAR',
-        },
-        'EUR': {
-            'KRAKEN': 'ZEUR',
-        },
-        'XBT': {
-            'BITX': 'XBT',
-            'KRAKEN': 'XXBT',
-        }
-    },
-    'pairs': {
-        'XBT_EUR': {
-            'KRAKEN': 'XXBTZEUR'
-        },
-        'XBT_ZAR': {
-            'BITX': 'XBTZAR'
-        },
-        'XBT_USD': {
-            'SFOX': 'XBT_USD'
-        }
-    }
-}
-
 
 # TASK RUNNER
 # ---------------------------------------------------------------------------------------------------------------------

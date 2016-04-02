@@ -20,7 +20,4 @@ urlpatterns = patterns('',
     # Api docs
     url(r'^docs/', include('rest_framework_swagger.urls')),
 
-    # ZapGo Engine
-    url(r'^api/1/', include('zapgo_engine.urls')),
-
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

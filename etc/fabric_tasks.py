@@ -8,7 +8,6 @@ import shutil
 import logging
 import re
 import dotenv
-from typing import Callable, Tuple
 import posixpath
 
 # Load local .env file
@@ -48,7 +47,7 @@ def install_help():
     print('pip Fabric3')
 
 
-def lol(cmd: str = '--help', path: str = '', live: bool = False):
+def lol(cmd='--help', path='', live=False):
     if not path:
         path = env.project_dir if live else './'
 
@@ -56,7 +55,18 @@ def lol(cmd: str = '--help', path: str = '', live: bool = False):
         run(cmd) if live else local(cmd)
 
 
-def compose(cmd: str = '--help', path: str = '', live: bool = False) -> None:
+def letsencrypt(live=False):
+    cmd = """sudo docker run -it --rm -p 443:443 -p 80:80 --name letsencrypt \
+            -v "/etc/letsencrypt:/etc/letsencrypt" \
+            -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+            quay.io/letsencrypt/letsencrypt:latest auth"""
+    if live:
+        run(cmd)
+    else:
+        local(cmd)
+
+
+def compose(cmd='--help', path='', live=False):
     env_vars = 'IMAGE_NAME={image_name} '.format(image_name=env.image_name)
     template = {
         'posix': '%sdocker-compose {cmd}' % (env_vars if live else ''),
@@ -70,34 +80,34 @@ def compose(cmd: str = '--help', path: str = '', live: bool = False) -> None:
             check_default_machine()
 
 
-def docker_base(cmd: str = '--help', live: bool = False) -> None:
+def docker_base(cmd='--help', live=False):
     template = 'docker {cmd}'.format(cmd=cmd)
     run(template) if live else local(template)
 
 
-def docker(cmd: str = '--help', live: bool = False) -> None:
+def docker(cmd='--help', live=False):
     docker_base(cmd=cmd, live=live)
 
 
-def manage(cmd: str = 'help', live: bool = False) -> None:
+def manage(cmd='help', live=False):
     if live:
-        compose('run --rm webapp manage.py {cmd}'.format(cmd=cmd), live=True)
+        compose('run --rm webapp python manage.py {cmd}'.format(cmd=cmd), live=True)
     else:
         with prefix(env.activate):
             local('python src/manage.py {cmd}'.format(cmd=cmd))
 
 
-def pip(cmd: str = '--help') -> None:
+def pip(cmd='--help'):
     with prefix(env.activate):
         local('pip {cmd}'.format(cmd=cmd))
 
 
-def conda(cmd: str = '--help') -> None:
+def conda(cmd='--help'):
     with prefix(env.activate):
         local('conda {cmd}'.format(cmd=cmd))
 
 
-def filr(cmd: str = 'get', file: str = '.envs', use_sudo: bool = False) -> None:
+def filr(cmd='get', file='.envs', use_sudo=False):
     if cmd == 'get':
         get(posixpath.join(env.project_dir, file), file)
     elif cmd == 'put':
@@ -122,6 +132,8 @@ def init():
 def prepare():
     with prefix(env.activate):
         manage('makemigrations')
+        manage('migrate sites')
+        manage('migrate administration')
         manage('migrate')
         manage('collectstatic --noinput -v1')
 
@@ -186,7 +198,7 @@ def deploy():
 
 
 def make_wheels():
-    put('./etc/build-requirements.txt', '/srv/build/build-requirements.txt')
+    put('./requirements.txt', '/srv/build/requirements.txt')
     compose(cmd='-f service.yml -p %s run --rm wheel-factory' % env.project_name, path='/srv/build', live=True)
 
 
@@ -201,7 +213,7 @@ def make_default_webapp():
         # run('docker tag default_webapp kmaginary/apps:%s' % env.project_name)
 
 
-def push_image(live: bool = False):
+def push_image(live=False):
     docker('push %s' % env.image_name, live=live)
 
 
@@ -210,7 +222,7 @@ def update_runtime():
     make_default_webapp()
 
 
-def postgres(cmd: str = 'backup', live: bool = False, tag: str = 'tmp'):
+def postgres(cmd='backup', live=False, tag='tmp'):
     """
     Task for backup and restore of database
     :param cmd:
@@ -276,7 +288,7 @@ def postgres_everywhere():
           'grep -oE \'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\')    postgres >> /etc/hosts"')
 
 
-def datr(module: str = 'auth', target: str = 'local') -> None:
+def datr(module='auth', target='local'):
     """ Manage data
     :param module:
     :param target:
@@ -319,7 +331,7 @@ def clean_unused_volumes():
         'martin/docker-cleanup-volumes')
 
 
-def release(live: bool = False, tag: str = 'tmp'):
+def release(live=False, tag='tmp'):
     # if tag == 'tmp':
     #     release = prompt('Please supply a release name', validate=r'^\w+-\d+(\.\d+)?$')
 
@@ -336,7 +348,7 @@ def release(live: bool = False, tag: str = 'tmp'):
         print("# Commit changes using:\n$ git commit -a -m 'message...'")
 
 
-def rollback(live: bool = False, tag: str = 'tmp'):
+def rollback(live=False, tag='tmp'):
     answer = prompt('Did you remember to first release?', default='no', )
     # print(answer)
     if answer == 'yes':
@@ -349,7 +361,7 @@ def rollback(live: bool = False, tag: str = 'tmp'):
         print("# You can do a release by running:\n$ fab release:tag='tag'")
 
 
-def update_self(files: Tuple[str] = (1, 'src/config', 'fabfile.py', 'docker-compose.yml')):
+def update_self(files=(1, 'src/config', 'fabfile.py', 'docker-compose.yml')):
     """
     Function to update dstack. Please make sure all changes are commited before running.
     Still requires cleanup and testing.
@@ -400,8 +412,8 @@ def doctor():
             error='Please install missing dependencies', )
 
 
-def checkup(check_function: Callable[[None], dict], description: str = 'Checking...',
-            success: str = 'No problem', error: str = 'Errors found'):
+def checkup(check_function, description='Checking...',
+            success='No problem', error='Errors found'):
     if env.log_level <= logging.DEBUG:
         print(description)
 
@@ -571,7 +583,17 @@ def check_postgres():
             print(red("Hostname not set!"))
 
 
-def get_result(cmd: str = 'echo "Hello, World!'):
+def get_result(cmd='echo "Hello, World!'):
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         result = local(cmd, capture=True)
         return result if result else ''
+
+
+#remove when new setup
+def start_proxy():
+    run("docker run -d -p 80:80 -p 443:443  --name nginx-proxy \
+        -v /srv/htdocs:/var/www:ro \
+        -v /srv/certs:/etc/nginx/certs:ro \
+        -v /srv/config/:/etc/nginx/vhost.d:ro \
+        -v /var/run/docker.sock:/tmp/docker.sock:ro \
+        jwilder/nginx-proxy")

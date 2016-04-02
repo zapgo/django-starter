@@ -7,28 +7,30 @@ env_vars_loaded = os.environ.get('DEBUG', '')
 if not env_vars_loaded:
     try:
         print('Loading keys from file...')
-        current_directory = os.path.dirname(__file__)
+        current_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         parent_directory = os.path.split(current_directory)[0]
         parent_directory = os.path.split(parent_directory)[0]
-        parent_directory = os.path.split(parent_directory)[0]
+        print(parent_directory)
 
-        file_path = os.path.join(parent_directory, '.env_local')
+        file_path = os.path.join(parent_directory, 'etc/.env_local')
         with open(file_path, 'r') as f:
             output = f.read()
             output = output.split('\n')
 
         for var in output:
-            k, v = var.split('=', maxsplit=1)
-
-            os.environ.setdefault(k, v)
+            if var:
+                k, v = var.split('=', maxsplit=1)
+                os.environ.setdefault(k, v)
     except FileNotFoundError:
         print('environmental variables file not found')
         pass
 
+# Add all project configurations that are stored in env variables:
+
 # config
-DEBUG = os.environ.get('SECRET_KEY', 'kjmYm9VFG~vC47dh[OwYwCpnEA#}L#+yBUVQm6#GcrBJYfhz$jB|W)zyb=MM%">')
+DEBUG = os.environ.get('DEBUG', True)
 
 
 # secrets
-SECRET_KEY = os.environ.get('SECRET_KEY', 'kjmYm9VFG~vC47dh[OwYwCpnEA#}L#+yBUVQm6#GcrBJYfhz$jB|W)zyb=MM%">')
+SECRET_KEY = os.environ.get('DJANGO_SECRET', '13&wd9&48$jv82^b#ygwu#fm+8l8orx2s5dh(90o3meuevngh!')
 

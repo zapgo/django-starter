@@ -1,10 +1,6 @@
-name: django-starter
+name: fabric
 dependencies:
-- python=3.5
-- pandas
-- pycrypto
-- psycopg2
+- python=2.7
 - pip:
-  - pillow
-  - django
-  - gunicorn
+  - python-dotenv
+  - fabric

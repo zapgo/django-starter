@@ -1,11 +1,3 @@
-name: dstack
+name: django-starter
 dependencies:
 - python=3.5
-- pandas
-- pycrypto
-# If not Windows, uncomment
-# - psycopg2
-- pip:
-  - pillow
-  - django
-  - gunicorn
