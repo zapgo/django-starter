@@ -171,11 +171,11 @@ def upload_www():
 def upload_config():
     put('./etc/nginx-vhost.conf', '/srv/config/%s' % env.virtual_host)
     run("sed -i 's/{{project_name}}/%s/g' '/srv/config/%s'" % (env.project_name, env.virtual_host))
-    try:
-        put('./etc/certs/%s.key' % env.virtual_host, '/srv/certs/')
-        put('./etc/certs/%s.crt' % env.virtual_host, '/srv/certs/')
-    except:
-        print('No certs found')
+    # try:
+    #     put('./etc/certs/%s.key' % env.virtual_host, '/srv/certs/')
+    #     put('./etc/certs/%s.crt' % env.virtual_host, '/srv/certs/')
+    # except:
+    #     print('No certs found')
 
 
 def deploy():
@@ -187,6 +187,10 @@ def deploy():
 
 def make_wheels():
     put('./etc/build-requirements.txt', '/srv/build/build-requirements.txt')
+
+    with cd('/srv/build/wheelhouse'):
+        run('rm -rf *.whl')
+
     compose(cmd='-f service.yml -p %s run --rm wheel-factory' % env.project_name, path='/srv/build', live=True)
 
 
