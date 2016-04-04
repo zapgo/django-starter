@@ -23,14 +23,6 @@ env.key_file_public = os.environ.get('KEY_FILE_PUBLIC', '')
 env.docker_compose_version = os.environ.get('DOCKER_COMPOSE_VERSION', '1.5.2')
 env.pptp_secret = os.environ.get('PPTP_SECRET', 'replace_with_real_password')
 
-env.user_data = env.cloud_init_template.format(**{
-    'user_name': env.user_name,
-    'sshd_port': env.sshd_port,
-    'docker_compose_version': env.docker_compose_version,
-    'ssh_public_key': env.ssh_public_key,
-    'pptp_secret': env.pptp_secret,
-})
-
 
 # How to create default deplouyment
 def create_server():
@@ -38,7 +30,7 @@ def create_server():
           '--driver digitalocean '
           '--digitalocean-region=nyc2 '
           '--digitalocean-access-token={digital_ocean_token} '
-          '{host_name}'.format(**env))
+          '{host_name}'.format(digital_ocean_token=env.digital_ocean_token))
 
 
 # eval $eval(docker-machine env {host_name})
@@ -191,6 +183,14 @@ runcmd:
   - cd /srv/ && docker-compose up -d
 """
 
+env.user_data = env.cloud_init_template.format(**{
+    'user_name': env.user_name,
+    'sshd_port': env.sshd_port,
+    'docker_compose_version': env.docker_compose_version,
+    'ssh_public_key': env.key_file_public,
+    'pptp_secret': env.pptp_secret,
+})
+
 
 def install_appserver():
     run("mkdir -p /srv/certs /srv/config /srv/apps/default /srv/htdocs /srv/build")
@@ -203,8 +203,8 @@ def install_appserver():
 
     run('cp /srv/apps/default/etc/server/docker-services.yml /srv/services.yml')
 
-    run('docker-compose -f /srv/services.yml up -d nginx-proxy letsencrypt-plugin', live=True)
-    run('docker pull kmaginary/wheel-factory', live=True)
+    run('docker-compose -f /srv/services.yml up -d nginx-proxy letsencrypt-plugin')
+    run('docker pull obitec/wheel-factory', live=True)
 
     with cd('/srv/build/'):
         fp = 'wheel-factory-master'
@@ -214,3 +214,11 @@ def install_appserver():
         run('rm master.tar.gz')
 
     run("chown -R %s:%s /srv/" % (env.username, env.username))
+
+
+def install_unison():
+    pass
+# wget http://unison-binaries.inria.fr/files/2011.01.28-Esup-unison-2.40.61-linux-x8 6_64-text-static.tar.gz
+# tar zxvf 2011.01.28-Esup-unison-2.40.61-linux-x86_64-text-static.tar.gz
+# mv unison-2.40.61-linux-x86_64-text-static unison
+# sudo ln -s /home/user/bin/unison /usr/bin/unison
