@@ -69,6 +69,9 @@ etc/certs
 db.sqlite3
 *.xls[xm]
 *.db
+/src/celerybeat-schedule.dir
+/src/celerybeat-schedule.dat
+/src/celerybeat-schedule.bak
 
 # Editor folders
 .idea

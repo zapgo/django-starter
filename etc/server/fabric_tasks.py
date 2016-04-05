@@ -1,7 +1,6 @@
 from fabric.api import env, local, run, cd
 import dotenv
 import os
-import digitalocean
 
 # Load local .env file
 env.local_dotenv_path = os.path.join(os.path.dirname(__file__), './server.env')
@@ -30,7 +29,8 @@ def create_server():
           '--driver digitalocean '
           '--digitalocean-region=nyc2 '
           '--digitalocean-access-token={digital_ocean_token} '
-          '{host_name}'.format(digital_ocean_token=env.digital_ocean_token))
+          '{host_name}'.format(digital_ocean_token=env.digital_ocean_token,
+                               host_name=env.host_name))
 
 
 # eval $eval(docker-machine env {host_name})
@@ -157,10 +157,6 @@ write_files:
           - /srv/certs:/etc/nginx/certs:ro
           - /srv/config/:/etc/nginx/vhost.d:ro
           - /var/run/docker.sock:/tmp/docker.sock:ro
-  - path: /srv/chap-secrets
-    content: |
-      # client    server      secret      acceptable local IP addresses
-      canary      *           {pptp_secret}    *
 
 runcmd:
   - touch /init.txt
@@ -178,8 +174,6 @@ runcmd:
   - docker pull postgres
   - docker pull redis
   - docker pull rabbitmq:3-management
-  - docker pull mobtitude/vpn-pptp
-  - docker run -d --privileged -p 1723:1723 -v /srv/chap-secrets:/etc/ppp/chap-secrets mobtitude/vpn-pptp
   - cd /srv/ && docker-compose up -d
 """
 
@@ -196,24 +190,24 @@ def install_appserver():
     run("mkdir -p /srv/certs /srv/config /srv/apps/default /srv/htdocs /srv/build")
 
     with cd('/srv/apps/default'):
-        fp = 'dstack-master/'
-        run('wget https://github.com/jr-minnaar/dstack/archive/master.tar.gz')
+        fp = 'django-starter-master/'
+        run('wget https://github.com/zapgo/django-starter/archive/master.tar.gz')
         run('tar -zxvf master.tar.gz --strip=1 {fp}etc {fp}src {fp}docker-compose.yml'.format(fp=fp))
         run('rm master.tar.gz')
 
     run('cp /srv/apps/default/etc/server/docker-services.yml /srv/services.yml')
 
     run('docker-compose -f /srv/services.yml up -d nginx-proxy letsencrypt-plugin')
-    run('docker pull obitec/wheel-factory', live=True)
+    run('docker pull zapgo/wheel-factory')
 
     with cd('/srv/build/'):
-        fp = 'wheel-factory-master'
-        run('wget https://github.com/jr-minnaar/wheel-factory/archive/master.tar.gz')
+        fp = 'docker-image-factory-master'
+        run('wget https://github.com/zapgo/docker-image-factory/archive/master.tar.gz')
         run('tar -zxvf master.tar.gz '
               '--strip=1'.format(fp=fp))
         run('rm master.tar.gz')
 
-    run("chown -R %s:%s /srv/" % (env.username, env.username))
+    run("chown -R %s:%s /srv/" % (env.user_name, env.user_name))
 
 
 def install_unison():

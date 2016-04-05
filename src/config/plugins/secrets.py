@@ -12,7 +12,7 @@ if not env_vars_loaded:
         parent_directory = os.path.split(parent_directory)[0]
         print(parent_directory)
 
-        file_path = os.path.join(parent_directory, 'etc/.env_local')
+        file_path = os.path.join(parent_directory, './.env_local')
         with open(file_path, 'r') as f:
             output = f.read()
             output = output.split('\n')
@@ -33,4 +33,5 @@ DEBUG = os.environ.get('DEBUG', True)
 
 # secrets
 SECRET_KEY = os.environ.get('DJANGO_SECRET', '13&wd9&48$jv82^b#ygwu#fm+8l8orx2s5dh(90o3meuevngh!')
-
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')

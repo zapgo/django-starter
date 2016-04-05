@@ -14,6 +14,7 @@ import os
 from .plugins.secrets import *
 from .plugins.rest_framework import *
 from .plugins.database import *
+from .plugins.tasks import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -168,56 +169,3 @@ PROJECT_APPS = [
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS
-
-# TASK RUNNER
-# ---------------------------------------------------------------------------------------------------------------------
-CELERY_ENABLE_UTC = True
-CELERY_TIMEZONE = "UTC"
-
-CELERY_CREATE_MISSING_QUEUES = True
-
-if not DEBUG:
-    CELERY_DEFAULT_QUEUE = 'zapgo-engine'
-else:
-    CELERY_DEFAULT_QUEUE = 'zapgo-engine-local'
-
-CELERY_ROUTES = {'zapgo_engine.tasks.refresh_bitcoin_rates': {'queue': 'zapgo-update-rates'},
-                 'zapgo_engine.tasks.refresh_forex_rates': {'queue': 'zapgo-update-rates'},
-                 'zapgo_engine.tasks.run_arb_play': {'queue': 'zapgo-arbitrage'}}
-
-
-BROKER_TRANSPORT = 'sqs'
-BROKER_TRANSPORT_OPTIONS = {
-    'region': 'eu-west-1',
-    'visibility_timeout': 30,
-    'polling_interval': 1,
-}
-
-from datetime import timedelta
-
-CELERYBEAT_SCHEDULE = {
-    'refresh-bitcoin-exchange-rates': {
-        'task': 'zapgo_engine.tasks.refresh_bitcoin_rates',
-        'schedule': timedelta(seconds=30),
-        'args': ()
-    },
-    'refresh-forex-rates': {
-        'task': 'zapgo_engine.tasks.refresh_forex_rates',
-        'schedule': timedelta(seconds=3600),  # slightly longer ensure bitcoin rate is updated first
-        'args': ()
-    },
-}
-
-
-if False:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'postgres',
-            'USER': os.environ.get('DB_ENV_POSTGRES_USER', 'postgres'),
-            'PASSWORD': os.environ.get('DB_ENV_POSTGRES_PASSWORD', 'postgres'),
-            'HOST': os.environ.get('DB_PORT_5432_TCP_ADDR', ''),
-            'PORT': os.environ.get('DB_PORT_5432_TCP_PORT', ''),
-        }
-    }
-
