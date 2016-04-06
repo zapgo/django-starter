@@ -23,42 +23,44 @@ env.docker_compose_version = os.environ.get('DOCKER_COMPOSE_VERSION', '1.5.2')
 env.pptp_secret = os.environ.get('PPTP_SECRET', 'replace_with_real_password')
 
 
-# How to create default deplouyment
-def create_server():
-    local('docker-machine create '
-          '--driver digitalocean '
-          '--digitalocean-region=nyc2 '
-          '--digitalocean-access-token={digital_ocean_token} '
-          '{host_name}'.format(digital_ocean_token=env.digital_ocean_token,
-                               host_name=env.host_name))
+# How to create default deployment
+def create_server(provider='digitalocean'):
+    if provider=='digitalocean':
+        local('docker-machine create '
+              '--driver digitalocean '
+              '--digitalocean-region=nyc2 '
+              '--digitalocean-access-token={digital_ocean_token} '
+              '{host_name}'.format(digital_ocean_token=env.digital_ocean_token,
+                                   host_name=env.host_name))
+
+    # for gcloud, first install gcloud and do gcloud auth login
+    elif provider=='gcloud':
+        local('docker-machine create '
+              '--driver google '
+              '--google-project zapgo-1273 '
+              '--google-zone europe-west1-c '
+              '--google-machine-type n1-standard-1 '
+              '{host_name}'.format(host_name=env.host_name))
 
 
-# eval $eval(docker-machine env {host_name})
+def create_ssh_config():
+    ip_address = local('docker-machine ip {host_name}'.format(host_name=env.host_name), capture=True)
+    keyfile = '~/.docker/machine/machines/{host_name}/id_rsa'.format(host_name=env.host_name)
 
-# 'docker-compose -f etc/docker-services.yml up -d nginx-proxy'
-# 'docker-compose -f etc/docker-services.yml up -d letsencrypt-plugin'
-
-# env.project_path = '{project_path}'
-
-# 'docker run -v {project_path}:/app -it --rm {image_name} django-admin startproject config /app'
-# 'docker run -v {project_path}:/app -it --rm {image_name} ./manage.py migrate'
-# 'docker run -v {project_path}:/app -it --rm {image_name} ./manage.py createsuperuser'
-
-# 'docker run -v {project_path}:/app -it --rm {image_name} mv config/settings.py config/default.py'
-# 'docker-machine scp ./src/config/settings.py {host_name}:{project_path}/config/'
-
-# 'docker run -p 8000:8000 -v {project_path}:/app -it --rm {image_name} ./manage.py startapp example_app'
-
-# docker run -p 8000:8000
-# -e VIRTUAL_HOST="example.co"
-# -e LETSENCRYPT_EMAIL="example@outlook.com"
-# -e LETSENCRYPT_HOST="example.co"
-# -v {project_path}:/app -it --rm
-# {image_name} ./manage.py runserver 0.0.0.0:8000
-
-# TODO autocreate ~/.ssh/config file from docker-machine config {host_name}
-# 'ssh root@127.0.0.1 -i /Users/username/.docker/machine/machines/{host_name}/id_rsa'
-
+    ssh_config = env.ssh_config_template.format(
+        host_name=env.host_name,
+        ip=ip_address,
+        port=env.sshd_port,
+        user=env.user_name,
+        keyfile=keyfile,
+    )
+    local('echo "\nHost {host_name}\n\tHostName {ip}\n\tPort {ssh_port}\n\tUser {user}\n\tIdentityFile {keyfile}"'
+          '>> ~/.ssh/config'.format(host_name=env.host_name,
+                                     ip=ip_address,
+                                     ssh_port=env.sshd_port,
+                                     user=env.user_name,
+                                     keyfile=keyfile))
+    print(ssh_config)
 
 def main():
     # curl http://127.0.0.1/metadata/v1/user-data

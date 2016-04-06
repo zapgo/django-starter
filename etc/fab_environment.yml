@@ -1,4 +1,4 @@
-name: fabric
+name: fab
 dependencies:
 - python=2.7
 - pip:

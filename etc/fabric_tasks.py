@@ -42,9 +42,9 @@ env.project_path = os.path.dirname(os.path.dirname(__file__))
 env.log_level = logging.DEBUG
 
 
-def install_help():
-    print('To install Python 3 Fabric, run:')
-    print('pip Fabric3')
+def local_setup():
+    conda('env update -f etc/environment.yml')
+    pip('install -r requirements.txt')
 
 
 def lol(cmd='--help', path='', live=False):
@@ -53,17 +53,6 @@ def lol(cmd='--help', path='', live=False):
 
     with cd(path):
         run(cmd) if live else local(cmd)
-
-
-def letsencrypt(live=False):
-    cmd = """sudo docker run -it --rm -p 443:443 -p 80:80 --name letsencrypt \
-            -v "/etc/letsencrypt:/etc/letsencrypt" \
-            -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
-            quay.io/letsencrypt/letsencrypt:latest auth"""
-    if live:
-        run(cmd)
-    else:
-        local(cmd)
 
 
 def compose(cmd='--help', path='', live=False):
@@ -103,8 +92,17 @@ def pip(cmd='--help'):
 
 
 def conda(cmd='--help'):
-    with prefix(env.activate):
-        local('conda {cmd}'.format(cmd=cmd))
+    try:
+        with prefix(env.activate):
+            try:
+                local('conda {cmd}'.format(cmd=cmd))
+            except: # update command sometimes aborts.
+                'command failed. continuing...'
+    except:
+        local('conda env create -f etc/environment.yml')
+        with prefix(env.activate):
+            local('conda {cmd}'.format(cmd=cmd))
+
 
 
 def filr(cmd='get', file='.envs', use_sudo=False):
@@ -113,20 +111,6 @@ def filr(cmd='get', file='.envs', use_sudo=False):
     elif cmd == 'put':
         put(file, posixpath.join(env.project_dir, file), use_sudo=use_sudo)
         run('chmod go+r {0}'.format(posixpath.join(env.project_dir, file)))
-
-
-# Tasks
-def init():
-    local('conda env update -f etc/environment.yml')
-    local('pip install -r requirements.txt')
-    if os.name == 'nt':
-        local('pip install etc\windows\psycopg2-2.6.1-cp35-none-win_amd64.whl')
-    # TODO handle path creation natively
-    try:
-        local('mkdir %s' % os.path.abspath('./var/www/static'))
-        local('mkdir %s' % os.path.abspath('./var/www/media'))
-    except:
-        pass
 
 
 def prepare():
@@ -285,9 +269,9 @@ def reset_local_postgres():
     compose('up -d postgres')
 
 
-def postgres_everywhere():
+def local_postgres_setup():
     # local('echo ${DOCKER_HOST}')
-    local('sudo sed -i "" "/[[:space:]]postgres$/d" /etc/hosts')
+    local('sudo sed -i "/[[:space:]]postgres$/d" /etc/hosts')
     local('sudo /bin/bash -c "echo $(echo ${DOCKER_HOST} | '
           'grep -oE \'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\')    postgres >> /etc/hosts"')
 
@@ -591,13 +575,3 @@ def get_result(cmd='echo "Hello, World!'):
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         result = local(cmd, capture=True)
         return result if result else ''
-
-
-#remove when new setup
-def start_proxy():
-    run("docker run -d -p 80:80 -p 443:443  --name nginx-proxy \
-        -v /srv/htdocs:/var/www:ro \
-        -v /srv/certs:/etc/nginx/certs:ro \
-        -v /srv/config/:/etc/nginx/vhost.d:ro \
-        -v /var/run/docker.sock:/tmp/docker.sock:ro \
-        jwilder/nginx-proxy")
