@@ -3,7 +3,11 @@ import dotenv
 import os
 
 # Load local .env file
+from fabric.contrib.project import rsync_project, upload_project
+from fabric.operations import sudo
+
 env.local_dotenv_path = os.path.join(os.path.dirname(__file__), './server.env')
+env.local_dir = os.path.dirname(__file__)
 dotenv.load_dotenv(env.local_dotenv_path)
 
 # Set Fabric env
@@ -15,8 +19,8 @@ env.host_name = os.environ.get('HOST_NAME', '')
 
 env.image_name = os.environ.get('IMAGE_NAME', '')
 
-env.user_name = os.environ.get('USER_NAME', 'root')
-env.sshd_port = os.environ.get('SSHD_PORT', '22')
+env.user_name = os.environ.get('SSH_USERNAME', 'root')
+env.sshd_port = os.environ.get('SSH_PORT', '22')
 env.key_file_private = os.environ.get('KEY_FILE_PRIVATE', '')
 env.key_file_public = os.environ.get('KEY_FILE_PUBLIC', '')
 env.docker_compose_version = os.environ.get('DOCKER_COMPOSE_VERSION', '1.5.2')
@@ -40,7 +44,8 @@ def create_server(provider='digitalocean'):
               '--google-project zapgo-1273 '
               '--google-zone europe-west1-c '
               '--google-machine-type n1-standard-1 '
-              '{host_name}'.format(host_name=env.host_name))
+              '--google-username {user}'
+              '{host_name}'.format(host_name=env.host_name, user=env.user_name))
 
 
 def create_ssh_config():
@@ -61,67 +66,6 @@ def create_ssh_config():
                                      user=env.user_name,
                                      keyfile=keyfile))
     print(ssh_config)
-
-def main():
-    # curl http://127.0.0.1/metadata/v1/user-data
-
-    ssh_public_key = read_public_key(env.key_file_public)
-
-    config = {
-        'token': env.digital_ocean_token,
-        "name": env.host_name,
-        "region": "ams3",
-        "size": "2gb",
-        "image": "docker",
-        'ssh_keys': [676628, ],
-        "user_data": env.userdata,
-    }
-
-    droplet = create_droplet(config)
-
-    print(get_ip(droplet.id))
-    print(get_ssh_config(droplet.id))
-
-    return config
-
-
-def read_public_key(path):
-    # ssh_public_key = ''
-    with open(path) as f:
-        ssh_public_key = f.read().strip('\n')
-    return ssh_public_key
-
-
-def create_droplet(config):
-    droplet = digitalocean.Droplet(**config)
-    droplet.create()
-    return droplet
-
-
-def get_ip(droplet_id):
-    manager = digitalocean.Manager(token=env.digital_ocean_token)
-    droplet_instance = manager.get_droplet(droplet_id)
-    ip_address = droplet_instance.ip_address
-    return ip_address
-
-
-# droplet_instance.destroy()
-
-
-def get_ssh_config(droplet_id):
-    ip_address = (get_ip(droplet_id))
-
-    ssh_config = env.ssh_config_template.format(
-            host_name=env.host_name,
-            ip=ip_address,
-            port=env.sshd_port,
-            user=env.user_name,
-            keyfile=env.key_file_private,
-    )
-
-    print(ssh_config)
-    return ssh_config
-
 
 env.ssh_config_template = """Host {host_name}
     HostName {ip}
@@ -188,33 +132,38 @@ env.user_data = env.cloud_init_template.format(**{
 })
 
 
-def install_appserver():
-    run("mkdir -p /srv/certs /srv/config /srv/apps/default /srv/htdocs /srv/build")
+def install_server_requirements():
+    # Add user to sudo:
+    sudo('adduser {user} sudo'.format(user=env.user_name))
 
-    with cd('/srv/apps/default'):
-        fp = 'django-starter-master/'
-        run('wget https://github.com/zapgo/django-starter/archive/master.tar.gz')
-        run('tar -zxvf master.tar.gz --strip=1 {fp}etc {fp}src {fp}docker-compose.yml'.format(fp=fp))
-        run('rm master.tar.gz')
+    # Install Docker Compose:
+    sudo('curl -L '
+        'https://github.com/docker/compose/releases/download/{docker_compose_version}/'
+        'docker-compose-`uname -s`-`uname -m`'
+        ' > /usr/local/bin/docker-compose'.format(docker_compose_version=env.docker_compose_version))
 
-    run('cp /srv/apps/default/etc/server/docker-services.yml /srv/services.yml')
+    sudo('chmod +x /usr/local/bin/docker-compose')
 
-    run('docker-compose -f /srv/services.yml up -d nginx-proxy letsencrypt-plugin')
+    # Add user to docker group:
+    sudo('gpasswd -a {user} docker'.format(user=env.user_name))
+    sudo('service docker restart')
+
+    # Create server directory structure:
+    sudo("mkdir -p /srv/certs /srv/config /srv/apps/default /srv/htdocs /srv/build")
+    sudo("chown -R %s:%s /srv/" % (env.user_name, env.user_name))
+
+
+def install_image_factory():
     run('docker pull zapgo/wheel-factory')
 
     with cd('/srv/build/'):
         fp = 'docker-image-factory-master'
         run('wget https://github.com/zapgo/docker-image-factory/archive/master.tar.gz')
         run('tar -zxvf master.tar.gz '
-              '--strip=1'.format(fp=fp))
+            '--strip=1'.format(fp=fp))
         run('rm master.tar.gz')
 
-    run("chown -R %s:%s /srv/" % (env.user_name, env.user_name))
 
-
-def install_unison():
-    pass
-# wget http://unison-binaries.inria.fr/files/2011.01.28-Esup-unison-2.40.61-linux-x8 6_64-text-static.tar.gz
-# tar zxvf 2011.01.28-Esup-unison-2.40.61-linux-x86_64-text-static.tar.gz
-# mv unison-2.40.61-linux-x86_64-text-static unison
-# sudo ln -s /home/user/bin/unison /usr/bin/unison
+def nginx_ssl_setup():
+    upload_project(os.path.join(env.local_dir, 'docker-services.yml'), '/srv/', use_sudo=True)
+    run('docker-compose -f /srv/docker-services.yml up -d nginx-proxy letsencrypt-plugin')
