@@ -52,7 +52,7 @@ def lol(cmd='--help', path='', live=False):
         path = env.project_dir if live else './'
 
     with cd(path):
-        run(cmd) if live else local(cmd)
+        local(cmd)
 
 
 def compose(cmd='--help', path='', live=False):
@@ -116,8 +116,8 @@ def filr(cmd='get', file='.envs', use_sudo=False):
 def prepare():
     with prefix(env.activate):
         manage('makemigrations')
-        manage('migrate sites')
-        manage('migrate administration')
+        manage('makemigrations sites')
+        manage('makemigrations administration')
         manage('migrate')
         manage('collectstatic --noinput -v1')
 
