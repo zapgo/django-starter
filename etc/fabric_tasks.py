@@ -1,86 +1,127 @@
+import random
+import string
+
 from fabric.api import env, local, run, task, settings, abort, put, cd, prefix, get, sudo, shell_env, open_shell, prompt
 from fabric.colors import red, green, yellow, white
 from fabric.context_managers import hide
 from fabric.contrib.project import rsync_project
 import os
 import sys
-import shutil
+from distutils.spawn import find_executable
 import logging
 import re
 import dotenv
 import posixpath
 
-# Load local .env file
-env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')
-dotenv.load_dotenv(env.local_dotenv_path)
 
-# Set Fabric env
-env.use_ssh_config = True
-env.hosts = [os.environ.get('HOST_NAME', ''), ]
+def set_env(system):
 
-env.project_name = os.environ.get('PROJECT_NAME', '')
-env.project_dir = posixpath.join('/srv/apps/', env.project_name)
-env.virtual_host = os.environ.get('VIRTUAL_HOST', '')
-env.image_name = os.environ.get('IMAGE_NAME', '')
-env.build_dir = '/srv/build'
+    env.project_name = os.environ.get('PROJECT_NAME', '')
 
-env.dotenv_path = os.path.join(env.project_dir, '.env')
+    if system == 'production':
+        env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.production.env')
+        dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_dir = posixpath.join('/srv/apps/', env.project_name)
+        env.is_local = False
 
-env.virtual_env = os.environ.get('VIRTUAL_ENV', '')
+    if system == 'staging':
+        env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.staging.env')
+        dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_dir = posixpath.join('/srv/apps/', env.project_name)
+        env.is_local = False
 
-activate = {
-    'posix': 'source activate %s' % env.virtual_env,
-    'nt': 'activate %s' % env.virtual_env,
-}
-env.os = os.name
-env.activate = activate[env.os]
+    elif system == 'local':
+        env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.local.env')
+        dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_dir = './'
+        env.is_local = True
 
-env.postgres_data = '/var/lib/postgresql/data'
+    env.use_ssh_config = True
 
-env.project_path = os.path.dirname(os.path.dirname(__file__))
+    # Bug: when setting this inside a function. Using host_string as workaround
+    env.hosts = [os.environ.get('HOST_NAME', ''), ]
+    env.host_string = os.environ.get('HOST_NAME', '')
 
-env.log_level = logging.DEBUG
+    env.virtual_host = os.environ.get('VIRTUAL_HOST', '')
+    env.image_name = os.environ.get('IMAGE_NAME', '')
+    env.build_dir = '/srv/build'
+
+    env.virtual_env = os.environ.get('VIRTUAL_ENV', '')
+
+    activate = {
+        'posix': 'source activate %s' % env.virtual_env,
+        'nt': 'activate %s' % env.virtual_env,
+    }
+    env.os = os.name
+    env.activate = activate[env.os]
+
+    env.postgres_data = '/var/lib/postgresql/data'
+
+    env.project_path = os.path.dirname(os.path.dirname(__file__))
+
+    env.log_level = logging.DEBUG
 
 
-def local_setup():
-    conda('env update -f etc/environment.yml')
-    pip('install -r requirements.txt')
+def L():
+    set_env('local')
 
 
-def lol(cmd='--help', path='', live=False):
+def P():
+    set_env('production')
+
+
+def S():
+    set_env('staging')
+
+
+def python_env_setup():
+    # Create or update python environment
+    try:
+        conda('env update -f etc/environment.yml')
+    finally:
+        # Activate environment
+        with prefix(env.activate):
+            #  Install python requirements
+            pip('install -r requirements.txt')
+
+    # create static files directory
+    local('mkdir -p src/config/static')
+
+
+# sets path and execute on local or remote server:
+def execute(cmd, path=''):
+    # Set path:
     if not path:
-        path = env.project_dir if live else './'
+        path = env.project_dir
 
+    # Execute:
     with cd(path):
-        local(cmd)
+        local(cmd) if env.is_local else run(cmd)
 
 
-def compose(cmd='--help', path='', live=False):
+
+def compose(cmd='--help', path=''):
     env_vars = 'IMAGE_NAME={image_name} '.format(image_name=env.image_name)
     template = {
-        'posix': '%sdocker-compose {cmd}' % (env_vars if live else ''),
-        'nt': '%sdocker-compose {cmd}' % (env_vars if live else 'set PWD=%cd%&& '),
+        'posix': '%sdocker-compose {cmd}' % (env_vars if not env.is_local else ''),
+        'nt': '%sdocker-compose {cmd}' % (env_vars if not env.is_local else 'set PWD=%cd%&& '),
     }
 
     try:
-        lol(cmd=template[env.os].format(cmd=cmd), path=path, live=live)
+        execute(cmd=template[env.os].format(cmd=cmd), path=path)
     except SystemExit:
-        if not live:
+        if env.is_local:
             check_default_machine()
 
 
-def docker_base(cmd='--help', live=False):
+def docker(cmd='--help'):
     template = 'docker {cmd}'.format(cmd=cmd)
-    run(template) if live else local(template)
+    execute(template)
 
 
-def docker(cmd='--help', live=False):
-    docker_base(cmd=cmd, live=live)
-
-
-def manage(cmd='help', live=False):
-    if live:
-        compose('run --rm webapp python manage.py {cmd}'.format(cmd=cmd), live=True)
+def manage(cmd='help'):
+    if not env.is_local:
+        compose('run --rm webapp python manage.py {cmd}'.format(cmd=cmd))
     else:
         with prefix(env.activate):
             local('python src/manage.py {cmd}'.format(cmd=cmd))
@@ -92,17 +133,7 @@ def pip(cmd='--help'):
 
 
 def conda(cmd='--help'):
-    try:
-        with prefix(env.activate):
-            try:
-                local('conda {cmd}'.format(cmd=cmd))
-            except: # update command sometimes aborts.
-                'command failed. continuing...'
-    except:
-        local('conda env create -f etc/environment.yml')
-        with prefix(env.activate):
-            local('conda {cmd}'.format(cmd=cmd))
-
+    local('conda {cmd}'.format(cmd=cmd))
 
 
 def filr(cmd='get', file='.envs', use_sudo=False):
@@ -114,38 +145,24 @@ def filr(cmd='get', file='.envs', use_sudo=False):
 
 
 def prepare():
-    with prefix(env.activate):
-        manage('makemigrations')
-        manage('makemigrations sites')
-        manage('makemigrations administration')
-        manage('migrate')
-        manage('collectstatic --noinput -v1')
+
+    manage('makemigrations')
+    manage('makemigrations sites')
+    manage('makemigrations administration')
+    manage('makemigrations starter_app')
+    manage('migrate')
+    manage('collectstatic --noinput -v1')
 
 
 def translate():
-    with prefix(env.activate):
-        manage('makemessages -l af')
-        manage('compilemessages')
+    manage('makemessages -l af')
+    manage('compilemessages')
 
 
 def backup_basics():
-    with prefix(env.activate):
-        manage('dumpdata --indent=2 '
-               'flatpages sites auth.users auth.groups > '
-               'src/config/fixtures/initial_data.json')
-
-
-def sqlite_reset():
-    with prefix("export $(cat ./.env | grep -v ^# | xargs)"):
-        with prefix(env.activate):
-            local("echo $PROJECT_NAME")
-            local("mv ./src/db.sqlite3 ./src/db.sqlite3.bak")
-            local('find . -path "*/migrations/*.py" -not -name "__init__.py" -delete')
-            manage('makemigrations')
-            manage('migrate')
-            manage('collectstatic --noinput -v1')
-            manage('loaddata ./src/config/fixtures/initial_data.json')
-            # manage('loaddata ./src/customer_management/fixtures/initial_data.json')
+    manage('dumpdata --indent=2 '
+            'flatpages sites auth.users auth.groups > '
+            'src/config/fixtures/initial_data.json')
 
 
 def upload_app():
@@ -187,10 +204,10 @@ def make_wheels():
     with cd('/srv/build/wheelhouse'):
         run('rm -rf *.whl')
 
-    compose(cmd='-f service.yml -p %s run --rm wheel-factory' % env.project_name, path='/srv/build', live=True)
+    compose(cmd='-f service.yml -p %s run --rm wheel-factory' % env.project_name, path='/srv/build')
 
 
-def make_default_webapp():
+def build_docker_image():
     put('./requirements.txt', '/srv/build/requirements.txt')
 
     with cd('/srv/build'):
@@ -202,15 +219,10 @@ def make_default_webapp():
 
 
 def push_image(live=False):
-    docker('push %s' % env.image_name, live=live)
+    docker('push %s' % env.image_name)
 
 
-def update_runtime():
-    # make_wheels()
-    make_default_webapp()
-
-
-def postgres(cmd='backup', live=False, tag='tmp'):
+def postgres(cmd='backup', tag='tmp'):
     """
     Task for backup and restore of database
     :param cmd:
@@ -233,7 +245,7 @@ def postgres(cmd='backup', live=False, tag='tmp'):
                 data_path=env.postgres_data),
     }
 
-    if live:
+    if not env.is_local:
         backup_to_path = posixpath.join(env.project_dir, 'var/backups')
     else:
         backup_to_path = os.path.join(env.project_path, 'var/backups')
@@ -246,14 +258,14 @@ def postgres(cmd='backup', live=False, tag='tmp'):
     }
 
     docker_run_once = 'docker run --rm {volumes_from} {volumes} {image} {cmd}'
-    if live and cmd == 'restore':
+    if not env.is_local and cmd == 'restore':
         answer = prompt('Do you first want to upload the backup?', default='no', )
         if answer == 'yes':
             filr(cmd='put', file=os.path.join('var/backups/', backup_name), use_sudo=True)
-    compose('stop postgres', live=live)
-    lol(docker_run_once.format(**params), live=live)
-    compose('start postgres', live=live)
-    if live and cmd == 'backup':
+    compose('stop postgres')
+    execute(docker_run_once.format(**params))
+    compose('start postgres')
+    if not env.is_local and cmd == 'backup':
         answer = prompt('Did you want to download backup?', default='no', )
         if answer == 'yes':
             filr(cmd='get', file=posixpath.join('var/backups/', backup_name))
@@ -269,7 +281,7 @@ def reset_local_postgres():
     compose('up -d postgres')
 
 
-def local_postgres_setup():
+def add_postgres_host():
     # local('echo ${DOCKER_HOST}')
     local('sudo sed -i "/[[:space:]]postgres$/d" /etc/hosts')
     local('sudo /bin/bash -c "echo $(echo ${DOCKER_HOST} | '
@@ -290,19 +302,19 @@ def datr(module='auth', target='local'):
 
     if target == 'remote':
         manage('dumpdata -v 0 --indent 2 --natural-foreign {module} > ./src/data_dump.json'.format(
-            module=module), live=False)
+            module=module))
         filr('put', 'src/data_dump.json')
-        postgres('backup', live=True)
-        manage('loaddata data_dump.json', live=True)
+        postgres('backup')
+        manage('loaddata data_dump.json')
 
     elif target == 'local':
         manage('dumpdata -v 0 --indent 2 --natural-foreign {module} > ./src/data_dump.json'.format(
-            module=module), live=True)
+            module=module))
         filr('get', 'src/data_dump.json')
         answer = prompt('Do you want to install data locally?', default='no', )
         if answer == 'yes':
-            postgres('backup', live=False)
-            manage('loaddata ./src/data_dump.json', live=False)
+            postgres('backup')
+            manage('loaddata ./src/data_dump.json')
     else:
         print('Invalid option. Target must be local or remote')
 
@@ -329,7 +341,7 @@ def release(live=False, tag='tmp'):
             local('git tag %s' % tag)
         except:
             pass
-        postgres('backup', live=live, tag=tag)
+        postgres('backup', tag=tag)
         docker('tag {image_name}:latest {image_name}:{tag}'.format(
             image_name=env.image_name, tag=tag))
     else:
@@ -342,7 +354,7 @@ def rollback(live=False, tag='tmp'):
     if answer == 'yes':
         local('git branch development')
         local('git reset --hard %s' % tag)
-        postgres('restore', live=live, tag=tag)
+        postgres('restore', tag=tag)
         docker('tag {image_name}:{tag} {image_name}:latest'.format(
             image_name=env.image_name, tag=tag))
     else:
@@ -431,7 +443,7 @@ def check_depencies():
     unmet = 0
 
     for dependency in dependencies:
-        path = shutil.which(dependency)
+        path = find_executable(dependency)
         version = ['', ]
         if path:
             if dependency not in ['ssh', ]:
@@ -543,16 +555,32 @@ def check_env_vars():
         print(green('Everything is looking good!'))
 
     if env.log_level <= logging.INFO:
-        print(white('\nChecking for .env file', bold=True))
+        print(white('\nChecking for .env files', bold=True))
 
     mandatory_envs = ['SITE_ID', 'DEBUG']
-    if os.path.exists('./.env'):
+    if os.path.exists('./.local.env'):
         if env.log_level <= logging.INFO:
-            print(green('Found .env file'))
+            print(green('Found .local.env file'))
         os.environ.get('PATH', '')
     else:
         if env.log_level <= logging.ERROR:
-            print(red('.env does not exist!'))
+            print(red('.local.env does not exist!'))
+
+    if os.path.exists('./.staging.env'):
+        if env.log_level <= logging.INFO:
+            print(green('Found .staging.env file'))
+        os.environ.get('PATH', '')
+    else:
+        if env.log_level <= logging.ERROR:
+            print(red('.staging.env does not exist!'))
+
+    if os.path.exists('./.production.env'):
+        if env.log_level <= logging.INFO:
+            print(green('Found .production.env file'))
+        os.environ.get('PATH', '')
+    else:
+        if env.log_level <= logging.ERROR:
+            print(red('.production.env does not exist!'))
 
 
 def check_postgres():
@@ -575,3 +603,10 @@ def get_result(cmd='echo "Hello, World!'):
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         result = local(cmd, capture=True)
         return result if result else ''
+
+
+def generate_django_secret():
+    secret = ''.join(
+        [random.SystemRandom().choice("{}{}{}".format(string.ascii_letters, string.digits, string.punctuation)) for i in
+         range(50)])
+    print(secret)

@@ -6,26 +6,10 @@ ZapGo's Docker based development and deployment stack for [django](https://www.d
 Requires [Python](https://www.python.org/), [Docker Toolkit](https://docs.docker.com/), [Anaconda](https://store.continuum.io/cshop/anaconda/) and some other dependancies. Complete, heavy-weight development set up guide for MacOSX can be found [here](https://github.com/jr-minnaar/goeie-hoop).
 
 ## Getting started
-###Initial setup:
-1. Install Anaconda for python virtual environment management.
-2. Install Fabric in a Python 2.7 virtual environment:
+###Remote Server Set Up:
+Rapidly provision and set up a server on AWS, Google Cloud Platform or Digital Ocean for running one or multiple projects.
 
-	```
-	make fab
-	```
-3. Create and run python virtual environment from which to manage the deployment:
-
-	```
-	conda env create -f etc/fab_environment.yml 
-	```
-
-4. Activate the Fabric virtual environment. All fab commands should be run from here:
-	```
-	source activate fab
-	```
-
-###Virtual Machine Set-Up:
-Rapidly launch and setup a server on AWS, Google Cloud Platform or Digital Ocean for running one or multiple projects.
+##### A. Configuration
 
 1. Ensure that you have a `/etc/.server.env` file set up with the project settings. Example:
 
@@ -43,28 +27,39 @@ Rapidly launch and setup a server on AWS, Google Cloud Platform or Digital Ocean
 	AWS_SECRET_ACCESS_KEY=*AWS secret*
 	```
 
-2. Create the server on Digital Ocean, Google Cloud or AWS:
+2. Use the commands below to install and activate Fabric in a Python 2.7 virtual environment. Activate the fab environment before running any fab commands.
+
+	```
+	make fab
+	source activate fab
+	```
+
+##### C. Provisioning
+	
+1. Create the server on Digital Ocean, Google Cloud or AWS:
 	```
 	fab -f ./etc/server/fabric_tasks.py 		create_server:provider='digitalocean'
 	```
 	*When using gcloud, first install gcloud and run gcloud auth login
 
-3. Add the newly created VM to your ssh config file:
+2. Add the newly created VM to your ssh config file:
 	```
 	fab -f ./etc/server/fabric_tasks.py create_ssh_config
 	```
+
+##### D. Server setup
 	
-4. Install docker-compose and set up directory structure on server:
+3. Install docker-compose and set up directory structure on server:
 	```
 	fab -f ./etc/server/fabric_tasks.py install_server_requirements
 	```
 
-5. Install the docker-image-factory for updating docker images when python dependancies change:
+4. Install the docker-image-factory for updating docker images when python dependancies change:
 	```
 	fab -f ./etc/server/fabric_tasks.py install_image_factory
 	```
 	
-6. Load nginx and letsencrypt docker containers for automatic reverse proxy and SSL management for all projects running on this VM:
+5. Load nginx and letsencrypt docker containers for automatic reverse proxy and SSL management for all projects running on this VM:
 	```
 	 fab -f ./etc/server/fabric_tasks.py nginx_ssl_setup
 	 ```
@@ -72,7 +67,10 @@ Rapidly launch and setup a server on AWS, Google Cloud Platform or Digital Ocean
 ###Project Deployment:
 This setup is structured so that multiple projects can run alongside each other on the same server in separate docker containers. Here's how to start a new project:
 
-1. Ensure that you have a `.env` file in the root directory with the project settings. Example:
+####Configuration
+#####A. Settings and API Keys
+
+1. The project config settings and 3rd party API keys are in `.env` files in the project root directory. To start off, create three files, `.production.env`, `.staging.env` and `.local.env` in your root directory with the following format. You can run `fab generate_django_secret` to generate a django secret key for this project.
 
 	```
 	PROJECT_NAME=django-starter 
@@ -89,26 +87,100 @@ This setup is structured so that multiple projects can run alongside each other 
 	LETSENCRYPT_HOST=starter.zapgo.co
 	```
 
+#####B. Local python virtual environment
+
 2. Update the first line of `etc/environment.yml` to reflect your chosen virtual environment name (e.g. django-starter).
 	
 3. Create the local virtual environment:
 	
 	```
-	fab local_setup
-	```
-
-4. Ensure that your  ~/.ssh/config file to map the correct IP address and ssh key. This would have been done automatically if you followed the VM Set-up guide. Here's an example:
-
-	```
-	Host gcloud-starter
-		HostName 146.148.20.217
-		Port 22
-		User docker-user
-		IdentityFile ~/.docker/machine/machines/gcloud-starter/id_rsa
+	fab L python_env_setup
 	```
 	
-5. Set up a local docker container to run postgresql and create a link to it in `/etc/hosts` for easy local deployent:
+#####C. Local PostgresDB set up
 
+5. When working on MacOSX, you will need to create and activate a docker-machine VM:
+
+	```
+	docker-machine start default
+	eval $(docker-machine env default)
+	```
+
+6. Start a local postgres server:
+	
+	```
+	fab L compose:'up -d postgres'
+	```
+6. Add the docker server to your `/etc/hosts` for easy local testing with the postgre db:
+
+	```
+	fab L add_postgres_host
+	```
+	
+###Commands
+
+####Format
+```
+Local:			fab L {command}:{parameters}
+Staging:		fab S {command}:{parameters}
+Production:		fab P {command}:{parameters}
+```
+####Local
+#####Database:
+Edit the `prepare()` function in `etc/fabric_tasks` to include the neccessary migrations. Then run:
+
+```
+fab L prepare
+```
+You can also use the `fab L manage:migrate` command for specific migrations.
+	
+#####Webserver:
+
+```	
+fab L manage:runserver
+```
+####Deployment
+
+#####Upload files to server:
+```
+fab P deploy
+```
+#####Run webserver:
+```
+fab P compose:'up -d'
+```
+#####Stop webserver:
+```
+fab P compose:'stop'
+```
+#####Hard Reset webserver (reload env vars):
+```
+fab P compose:'stop'
+fab P compose:'rm'
+fab P compose:'up'
+```
+#####List running containers:
+```
+fab P docker:ps
+```
+### Update Docker Images
+Run these steps when you need to update the docker image due to changes in `requirements.txt`
+
+1. Compile the wheels for packages in `requirements.txt`
+	
+	```
+	fab P make_wheels
+	```
+2. Build the docker image:
+
+	```
+	fab P build_docker_image
+	```
+3. Push the image to DockerHub:
+
+	```
+	fab P push_image
+	```
 
 
 
