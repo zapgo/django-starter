@@ -1,0 +1,136 @@
+{% extends "starter_dashboard/includes/base.html" %}
+
+{% load staticfiles %}
+{% block content %}
+
+<div class="wrapper">
+
+    {% include "starter_dashboard/header.html" %}
+
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- search form -->
+            <form action="#" method="get" class="sidebar-form">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
+              </span>
+                </div>
+            </form>
+            <!-- /.search form -->
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+                <li class="header">MAIN NAVIGATION</li>
+                <li id="nav_alerts" class="treeview">
+                    <a href="#">
+                        <i class="fa fa-bullhorn"></i> <span>Alerts</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li id="page_alerts"><a href="{% url 'alerts' %}"><i class="fa fa-circle-o"></i>Alerts</a></li>
+                    </ul>
+                </li>
+                <li id="nav_tables" class="treeview">
+                    <a href="#">
+                        <i class="fa fa-table"></i> <span>Tables</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li id="page_tables"><a href="{% url 'tables' %}"><i class="fa fa-circle-o"></i>Table</a></li>
+                    </ul>
+                </li>
+                <li class="treeview" id="nav_forms">
+                    <a href="#">
+                        <i class="fa fa-edit"></i> <span>Forms</span> <i
+                            class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li id="page_forms"><a href="{% url 'forms' %}"><i class="fa fa-circle-o"></i>Form</a></li>
+                    </ul>
+                </li>
+                <li class="treeview" id="nav_charts">
+                    <a href="#">
+                        <i class="fa fa-pie-chart"></i> <span>Charts</span> <i
+                            class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li id="page_charts"><a href="{% url 'charts' %}"><i class="fa fa-circle-o"></i>Charts</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+
+
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 2.1.4 -->
+<script type="text/javascript" src="{% static 'starter_dashboard/plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
+<!-- Bootstrap 3.3.5 -->
+<script type="text/javascript" src="{% static 'starter_dashboard/bootstrap/js/bootstrap.min.js' %}"></script>
+<!-- DataTables -->
+<script type="text/javascript"
+        src="{% static 'starter_dashboard/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript"
+        src="{% static 'starter_dashboard/plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
+<!-- SlimScroll -->
+<script type="text/javascript"
+        src="{% static 'starter_dashboard/plugins/slimScroll/jquery.slimscroll.min.js' %}"></script>
+<!-- FastClick -->
+<script type="text/javascript" src="{% static 'starter_dashboard/plugins/fastclick/fastclick.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script type="text/javascript" src="{% static 'starter_dashboard/dist/js/app.min.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+<script type="text/javascript" src="{% static 'starter_dashboard/dist/js/demo.js' %}"></script>
+<!-- page script -->
+<script>
+    $(function () {
+        $("#example1").DataTable();
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        if ('{{nav_id}}' == 'nav_tables') {
+            $('#nav_tables').addClass('active');
+        }
+        if ('{{page_id}}' == 'page_tables') {
+            $('#page_tables').addClass('active');
+        }
+        if ('{{nav_id}}' == 'nav_alerts') {
+            $('#nav_alerts').addClass('active');
+        }
+        if ('{{page_id}}' == 'page_alerts') {
+            $('#page_alerts').addClass('active');
+        }
+        if ('{{nav_id}}' == 'nav_forms') {
+            $('#nav_forms').addClass('active');
+        }
+        if ('{{page_id}}' == 'page_forms') {
+            $('#page_forms').addClass('active');
+        }
+        if ('{{nav_id}}' == 'nav_charts') {
+            $('#nav_charts').addClass('active');
+        }
+        if ('{{page_id}}' == 'page_charts') {
+            $('#page_charts').addClass('active');
+        }
+
+    });
+</script>
+
+{% endblock %}
