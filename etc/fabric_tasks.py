@@ -100,6 +100,7 @@ def execute(cmd, path=''):
         local(cmd) if env.is_local else run(cmd)
 
 
+
 def compose(cmd='--help', path=''):
     env_vars = 'IMAGE_NAME={image_name} '.format(image_name=env.image_name)
     template = {
@@ -145,6 +146,7 @@ def filr(cmd='get', file='.envs', use_sudo=False):
 
 
 def prepare():
+
     manage('makemigrations')
     manage('makemigrations sites')
     manage('makemigrations administration')

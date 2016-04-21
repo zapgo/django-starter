@@ -46,22 +46,6 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'config.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Password validation
@@ -103,6 +87,40 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+# Template files
+# ---------------------------------------------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/howto/static-files/
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
+)
+
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'django-starter/templates')]
+
+
 # CUSTOMIZATION
 # ---------------------------------------------------------------------------------------------------------------------
 VERSION = '1.0.0'
@@ -117,7 +135,7 @@ TEMPLATES[0].update({'DIRS': [os.path.join(BASE_DIR, 'config/templates'), ]})
 
 FIXTURE_DIRS = ['config/fixtures']
 
-SITE_HEADER = 'Zapgo Engine'
+SITE_HEADER = 'Django Starter'
 
 CACHE_DIR = os.path.join(PROJECT_DIR, 'var/cache')
 
@@ -163,6 +181,7 @@ EXTENSIONS = [
 PROJECT_APPS = [
     'administration',
     'starter_app',
+    'starter_dashboard',
 ]
 
 INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS
