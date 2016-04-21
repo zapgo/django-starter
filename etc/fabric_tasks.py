@@ -16,23 +16,24 @@ import posixpath
 
 def set_env(system):
 
-    env.project_name = os.environ.get('PROJECT_NAME', '')
-
     if system == 'production':
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.production.env')
         dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_name = os.environ.get('PROJECT_NAME', '')
         env.project_dir = posixpath.join('/srv/apps/', env.project_name)
         env.is_local = False
 
     if system == 'staging':
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.staging.env')
         dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_name = os.environ.get('PROJECT_NAME', '')
         env.project_dir = posixpath.join('/srv/apps/', env.project_name)
         env.is_local = False
 
     elif system == 'local':
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.local.env')
         dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_name = os.environ.get('PROJECT_NAME', '')
         env.project_dir = './'
         env.is_local = True
 

@@ -12,7 +12,7 @@ if not env_vars_loaded:
         parent_directory = os.path.split(parent_directory)[0]
         print(parent_directory)
 
-        file_path = os.path.join(parent_directory, './.env_local')
+        file_path = os.path.join(parent_directory, './.local.env')
         with open(file_path, 'r') as f:
             output = f.read()
             output = output.split('\n')

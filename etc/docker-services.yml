@@ -35,6 +35,7 @@ webapp:
   user: webapp
   volumes:
     - ${PWD}/src:/app
+    - ${PWD}/var:/var
 #    - /srv/apps/default/src:/app
   env_file: ${PWD}/.env
   log_opt:
