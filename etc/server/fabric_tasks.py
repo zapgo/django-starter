@@ -15,7 +15,9 @@ env.use_ssh_config = True
 env.hosts = [os.environ.get('HOST_NAME', ''), ]
 
 env.digital_ocean_token = os.environ.get('DIGITAL_OCEAN_TOKEN', '')
-env.host_name = os.environ.get('HOST_NAME', '')
+env.aws_access_key_id = os.environ.get('DIGITAL_OCEAN_TOKEN', '')
+env.aws_secret_access_key = os.environ.get('AWS_ACCESS_KEY_ID', '')
+env.host_name = os.environ.get('AWS_SECRET_ACCESS_KEY', '')
 
 env.image_name = os.environ.get('IMAGE_NAME', '')
 
@@ -29,7 +31,7 @@ env.pptp_secret = os.environ.get('PPTP_SECRET', 'replace_with_real_password')
 
 # How to create default deployment
 def create_server(provider='digitalocean'):
-    if provider=='digitalocean':
+    if provider == 'digitalocean':
         local('docker-machine create '
               '--driver digitalocean '
               '--digitalocean-region=nyc2 '
@@ -38,7 +40,7 @@ def create_server(provider='digitalocean'):
                                    host_name=env.host_name))
 
     # for gcloud, first install gcloud and do gcloud auth login
-    elif provider=='gcloud':
+    elif provider == 'gcloud':
         local('docker-machine create '
               '--driver google '
               '--google-project zapgo-1273 '
@@ -46,6 +48,17 @@ def create_server(provider='digitalocean'):
               '--google-machine-type n1-standard-1 '
               '--google-username {user} '
               '{host_name}'.format(host_name=env.host_name, user=env.user_name))
+
+    elif provider == 'amazon':
+        local('docker-machine create '
+              '--driver amazonec2 '
+              '--amazonec2-region t2.small'
+              '--amazonec2-region eu-west-1a'
+              '--amazonec2-access-key={amazon_access_key_id} '
+              '--amazonec2-secret-key={amazon_access_key}'
+              '{host_name}'.format(amazon_access_key_id=env.amazon_access_key_id,
+                                   amazon_access_key=env.amazon_access_key,
+                                   host_name=env.host_name))
 
 
 def create_ssh_config():
