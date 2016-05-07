@@ -121,9 +121,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
 )
 
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'django-starter/templates')]
-
-
 # CUSTOMIZATION
 # ---------------------------------------------------------------------------------------------------------------------
 VERSION = '1.0.0'
