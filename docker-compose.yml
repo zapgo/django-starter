@@ -12,26 +12,26 @@ task_scheduler:
   extends:
      service: webapp
      file: ./etc/docker-services.yml
-  command: bash -c "celery -A config.celery worker --beat --loglevel=INFO --concurrency=1 -Q dummy-queue"
+  command: bash -c "celery -A config.celery worker --beat --schedule=/var/celerybeat-schedule --loglevel=INFO --concurrency=1 -Q dummy-queue"
   links:
     - redis
     - rabbitmq
 
-worker_default:
+worker_rates:
   extends:
      service: webapp
      file: ./etc/docker-services.yml
-  command: bash -c "celery -A config.celery worker --loglevel=DEBUG --concurrency=1 -Q task_queue"
+  command: bash -c "celery -A config.celery worker --loglevel=INFO --concurrency=1 -Q zapgo-update-rates2"
   links:
     - postgres
     - redis
     - rabbitmq
 
-worker_test_queue:
+worker_arbitrage:
   extends:
      service: webapp
      file: ./etc/docker-services.yml
-  command: bash -c "celery -A config.celery worker --loglevel=DEBUG --concurrency=1 -Q test_queue"
+  command: bash -c "celery -A config.celery worker --loglevel=INFO --concurrency=1 -Q zapgo-arbitrage2"
   links:
     - postgres
     - redis
@@ -50,7 +50,7 @@ postgres:
   ports:
     - '5432:5432'
   env_file:
-    - ${PWD}/.env
+    - ${PWD}/${ENV_FILE}
 
 db_data:
   image: postgres

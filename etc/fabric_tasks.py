@@ -16,27 +16,30 @@ import posixpath
 
 def set_env(system):
 
-    env.project_name = os.environ.get('PROJECT_NAME', '')
-
     if system == 'production':
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.production.env')
         dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_name = os.environ.get('PROJECT_NAME', '')
         env.project_dir = posixpath.join('/srv/apps/', env.project_name)
         env.is_local = False
 
     if system == 'staging':
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.staging.env')
         dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_name = os.environ.get('PROJECT_NAME', '')
+        env.project_name = os.environ.get('ENV_FILE', '')
         env.project_dir = posixpath.join('/srv/apps/', env.project_name)
         env.is_local = False
 
     elif system == 'local':
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.local.env')
         dotenv.load_dotenv(env.local_dotenv_path)
+        env.project_name = os.environ.get('PROJECT_NAME', '')
         env.project_dir = './'
         env.is_local = True
 
     env.use_ssh_config = True
+    env.env_file = os.environ.get('ENV_FILE', '')
 
     # Bug: when setting this inside a function. Using host_string as workaround
     env.hosts = [os.environ.get('HOST_NAME', ''), ]
@@ -88,6 +91,10 @@ def python_env_setup():
     local('mkdir -p src/config/static')
 
 
+def create_static_dir():
+    local('mkdir -p src/config/static') if env.is_local else run('mkdir -p src/config/static')
+
+
 # sets path and execute on local or remote server:
 def execute(cmd, path=''):
     # Set path:
@@ -99,9 +106,9 @@ def execute(cmd, path=''):
         local(cmd) if env.is_local else run(cmd)
 
 
-
 def compose(cmd='--help', path=''):
-    env_vars = 'IMAGE_NAME={image_name} '.format(image_name=env.image_name)
+    env_vars = 'IMAGE_NAME={image_name} ENV_FILE={env_file} '.format(image_name=env.image_name,
+                                                                    env_file=env.env_file)
     template = {
         'posix': '%sdocker-compose {cmd}' % (env_vars if not env.is_local else ''),
         'nt': '%sdocker-compose {cmd}' % (env_vars if not env.is_local else 'set PWD=%cd%&& '),
@@ -145,11 +152,10 @@ def filr(cmd='get', file='.envs', use_sudo=False):
 
 
 def prepare():
-
     manage('makemigrations')
     manage('makemigrations sites')
     manage('makemigrations administration')
-    manage('makemigrations starter_app')
+    manage('makemigrations zapgo_engine')
     manage('migrate')
     manage('collectstatic --noinput -v1')
 
@@ -172,8 +178,7 @@ def upload_app():
             '.git', '.gitignore', '__pycache__', '*.pyc', '.DS_Store', 'environment.yml',
             'fabfile.py', 'Makefile', '.idea',
             'bower_components', 'node_modules',
-            'static', 'var',
-            'server.env', '.env.example', 'requirements.txt', 'README.md',
+            'static', 'server.env', '.env.example', 'requirements.txt', 'README.md',
         ), delete=True)
 
 
@@ -192,10 +197,9 @@ def upload_config():
 
 
 def deploy():
-    prepare()
     upload_app()
     upload_www()
-    upload_config()
+    #upload_config()
 
 
 def make_wheels():

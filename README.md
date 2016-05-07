@@ -67,6 +67,38 @@ Rapidly provision and set up a server on AWS, Google Cloud Platform or Digital O
 ###Project Deployment:
 This setup is structured so that multiple projects can run alongside each other on the same server in separate docker containers. Here's how to start a new project:
 
+#### Creating Docker Images
+Run these steps when you need to create docker images for this project the first time or update the docker image due to changes in `requirements.txt`
+
+1. Deploy before starting:
+
+	```
+	fab P deploy
+	```
+
+2. Compile the wheels for packages in `requirements.txt`
+	
+	```
+	fab P make_wheels
+	```
+3. Build the docker image:
+
+	```
+	fab P build_docker_image
+	```
+	
+4. Log in to your docker account:
+
+	```
+	fab P docker:login
+	```
+	
+4. Push the image to DockerHub:
+
+	```
+	fab P push_image
+	```
+
 ####Configuration
 #####A. Settings and API Keys
 
@@ -163,24 +195,6 @@ fab P compose:'up'
 ```
 fab P docker:ps
 ```
-### Update Docker Images
-Run these steps when you need to update the docker image due to changes in `requirements.txt`
-
-1. Compile the wheels for packages in `requirements.txt`
-	
-	```
-	fab P make_wheels
-	```
-2. Build the docker image:
-
-	```
-	fab P build_docker_image
-	```
-3. Push the image to DockerHub:
-
-	```
-	fab P push_image
-	```
 
 
 

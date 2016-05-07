@@ -44,7 +44,7 @@ def create_server(provider='digitalocean'):
               '--google-project zapgo-1273 '
               '--google-zone europe-west1-c '
               '--google-machine-type n1-standard-1 '
-              '--google-username {user}'
+              '--google-username {user} '
               '{host_name}'.format(host_name=env.host_name, user=env.user_name))
 
 

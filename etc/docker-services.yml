@@ -9,7 +9,7 @@ postgres:
 #  volumes_from:
 #    - db_data
   env_file:
-    - ${PWD}/.env
+    - ${PWD}/${ENV_FILE}
 
 redis:
   image: redis
@@ -20,7 +20,7 @@ rabbitmq:
     - "5672:5672"
     - "15672:15672"
   env_file:
-    - ${PWD}/.env
+    - ${PWD}/${ENV_FILE}
 
 webapp:
   image: ${IMAGE_NAME}
@@ -35,8 +35,9 @@ webapp:
   user: webapp
   volumes:
     - ${PWD}/src:/app
+    - ${PWD}/var:/var
 #    - /srv/apps/default/src:/app
-  env_file: ${PWD}/.env
+  env_file: ${PWD}/${ENV_FILE}
   log_opt:
     max-size: "500k"
     max-file: "2"
