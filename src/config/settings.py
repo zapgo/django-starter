@@ -10,20 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+from logging import getLogger
+
 import os
+
 from .plugins.secrets import *
 from .plugins.rest_framework import *
 from .plugins.database import *
 from .plugins.tasks import *
+from .plugins.authentication import *
 
+
+# LOGGING
+# ---------------------------------------------------------------------------------------------------------------------#
+logger = getLogger('django')
+
+
+# Project paths
+# ---------------------------------------------------------------------------------------------------------------------#
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
 
 ALLOWED_HOSTS = ['*']
 
-
-# Application definition
-
+# Installed apps
+# ---------------------------------------------------------------------------------------------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,24 +43,51 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.flatpages',
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'corsheaders',
+    'rest_auth',
+    'rest_auth.registration',
+    'timezone_field',
+    'django_countries',
+    'rest_framework',
+    'rest_framework.authtoken',
+
+    'administration',
+    'starter_app',
+    'starter_dashboard',
 ]
+
+# Middleware
+# ---------------------------------------------------------------------------------------------------------------------
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'administration.middleware.DisableCSRF',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+MIDDLEWARE_CLASSES += ['django.middleware.locale.LocaleMiddleware', ]
+MIDDLEWARE_CLASSES += ['django.contrib.flatpages.middleware.FlatpageFallbackMiddleware', ]
+
 ROOT_URLCONF = 'config.urls'
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Password validation
+# ---------------------------------------------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -66,8 +105,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
+# ---------------------------------------------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
 LANGUAGE_CODE = 'en'
@@ -80,11 +119,28 @@ USE_L10N = False
 
 USE_TZ = True
 
+LANGUAGES = (
+    ('en', 'English'),
+    ('af', 'Afrikaans'),
+)
 
 # Static files (CSS, JavaScript, Images)
+# ---------------------------------------------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'var/www/static')
+
+STATICFILES_DIRS = [
+    # os.path.join(PROJECT_DIR, "var/www/static"),
+    # '/var/www/static/',
+    os.path.join(BASE_DIR, "config/static"),
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'var/www/media')
 
 
 # Template files
@@ -116,19 +172,19 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
+    'allauth.account.context_processors.account'
 )
 
-# CUSTOMIZATION
+TEMPLATES[0].update({'DIRS': [os.path.join(BASE_DIR, 'config/templates'),
+                              os.path.join(BASE_DIR, 'administration/templates/'),]})
+
+# Other
 # ---------------------------------------------------------------------------------------------------------------------
 VERSION = '1.0.0'
 
 SITE_ID = 1
 
-LOGIN_URL = '/admin/login'
-
-PROJECT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
-
-TEMPLATES[0].update({'DIRS': [os.path.join(BASE_DIR, 'config/templates'), ]})
+LOGIN_URL = '/accounts/login'
 
 FIXTURE_DIRS = ['config/fixtures']
 
@@ -136,49 +192,16 @@ SITE_HEADER = 'Django Starter'
 
 CACHE_DIR = os.path.join(PROJECT_DIR, 'var/cache')
 
-# STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'var/www/static')
-
-STATICFILES_DIRS = [
-    # os.path.join(PROJECT_DIR, "var/www/static"),
-    # '/var/www/static/',
-    os.path.join(BASE_DIR, "config/static"),
-]
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'var/www/media')
-
-AUTH_USER_MODEL = 'administration.UserBasic'
-
-LANGUAGES = (
-    ('en', 'English'),
-    ('af', 'Afrikaans'),
-)
-
-MIDDLEWARE_CLASSES += ['django.middleware.locale.LocaleMiddleware', ]
-MIDDLEWARE_CLASSES += ['django.contrib.flatpages.middleware.FlatpageFallbackMiddleware', ]
+AUTH_USER_MODEL = 'administration.User'
 
 FORMAT_MODULE_PATH = 'config.formats'
 
-DJANGO_CONTRIB = [
-    'django.contrib.flatpages',
-    'django.contrib.sites',
-]
 
-EXTENSIONS = [
-    #'rest_framework_swagger',
-    'rest_framework',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'corsheaders',
-    'rest_auth.registration',
-]
+# Email config
+# ---------------------------------------------------------------------------------------------------------------------
+EMAIL_BACKEND = 'django_ses_backend.SESBackend'
+SERVER_EMAIL = ''
+DEFAULT_FROM_EMAIL = ''
+AWS_SES_REGION_NAME = 'eu-west-1'
+AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
 
-PROJECT_APPS = [
-    'administration',
-    'starter_app',
-    'starter_dashboard',
-]
-
-INSTALLED_APPS = INSTALLED_APPS + DJANGO_CONTRIB + EXTENSIONS + PROJECT_APPS

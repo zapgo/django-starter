@@ -63,7 +63,7 @@ target/
 etc/certs
 
 # Backup files
-*.bak 
+*.bak
 
 # Binary files
 db.sqlite3

@@ -18,7 +18,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
-from administration.models import UserBasic, GroupBasic, CustomToken
+from administration.models import User
 
 csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
@@ -43,8 +43,8 @@ class UserAdmin(admin.ModelAdmin):
     add_form_template = 'admin/auth/user/add_form.html'
     change_user_password_template = None
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'gender', 'birthday', 'language')}),
+        (None, {'fields': ('password',)}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -58,9 +58,9 @@ class UserAdmin(admin.ModelAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-    search_fields = ('username', 'first_name', 'last_name', 'email')
+    search_fields = ('first_name', 'last_name', 'email')
     ordering = ('username',)
     filter_horizontal = ('groups', 'user_permissions',)
 
@@ -81,8 +81,9 @@ class UserAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(.+)/password/$', self.admin_site.admin_view(self.user_change_password), name='auth_user_password_change'),
-        ] + super(UserAdmin, self).get_urls()
+                   url(r'^(.+)/password/$', self.admin_site.admin_view(self.user_change_password),
+                       name='auth_user_password_change'),
+               ] + super(UserAdmin, self).get_urls()
 
     def lookup_allowed(self, lookup, value):
         # See #20078: we don't want to allow any lookups involving passwords.
@@ -169,9 +170,9 @@ class UserAdmin(admin.ModelAdmin):
         request.current_app = self.admin_site.name
 
         return TemplateResponse(request,
-            self.change_user_password_template or
-            'admin/auth/user/change_password.html',
-            context)
+                                self.change_user_password_template or
+                                'admin/auth/user/change_password.html',
+                                context)
 
     def response_add(self, request, obj, post_url_continue=None):
         """
@@ -190,13 +191,5 @@ class UserAdmin(admin.ModelAdmin):
                                                    post_url_continue)
 
 
-class CustomTokenAdmin(admin.ModelAdmin):
-    list_display = ('token', 'user', 'created')
-    fields = ('user',)
-    ordering = ('-created',)
-
-
 admin.site.unregister(Group)
-admin.site.register(GroupBasic, GroupAdmin)
-admin.site.register(UserBasic, UserAdmin)
-admin.site.register(CustomToken, CustomTokenAdmin)
+admin.site.register(User, UserAdmin)

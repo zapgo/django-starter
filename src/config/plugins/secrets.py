@@ -28,10 +28,10 @@ if not env_vars_loaded:
 # Add all project configurations that are stored in env variables:
 
 # config
-DEBUG = os.environ.get('DEBUG', True)
-
+DEBUG = os.environ.get('DEBUG', '') in ['True', True, 'true']
+TASK_QUEUE = os.environ.get('TASK_QUEUE', '') in ['True', True, 'true']
 
 # secrets
-SECRET_KEY = os.environ.get('DJANGO_SECRET', '13&wd9&48$jv82^b#ygwu#fm+8l8orx2s5dh(90o3meuevngh!')
+SECRET_KEY = os.environ.get('DJANGO_SECRET', 'dvznxtu08$$a9jxjh=jkkswbe5-dw5+ea%4k((1k69ooi7d(hj')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', '')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', '')

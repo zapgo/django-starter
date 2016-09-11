@@ -1,16 +1,16 @@
-import random
-import string
-
 from fabric.api import env, local, run, task, settings, abort, put, cd, prefix, get, sudo, shell_env, open_shell, prompt
 from fabric.colors import red, green, yellow, white
 from fabric.context_managers import hide
 from fabric.contrib.project import rsync_project
+import dotenv
+import random
+import string
+
 import os
 import sys
 from distutils.spawn import find_executable
 import logging
 import re
-import dotenv
 import posixpath
 
 
@@ -27,7 +27,6 @@ def set_env(system):
         env.local_dotenv_path = os.path.join(os.path.dirname(__file__), '../.staging.env')
         dotenv.load_dotenv(env.local_dotenv_path)
         env.project_name = os.environ.get('PROJECT_NAME', '')
-        env.project_name = os.environ.get('ENV_FILE', '')
         env.project_dir = posixpath.join('/srv/apps/', env.project_name)
         env.is_local = False
 
@@ -85,7 +84,7 @@ def python_env_setup():
         # Activate environment
         with prefix(env.activate):
             #  Install python requirements
-            pip('install -r requirements.txt')
+            pip('install -r wheel_requirements.txt')
 
     # create static files directory
     local('mkdir -p src/config/static')
@@ -107,8 +106,9 @@ def execute(cmd, path=''):
 
 
 def compose(cmd='--help', path=''):
-    env_vars = 'IMAGE_NAME={image_name} ENV_FILE={env_file} '.format(image_name=env.image_name,
-                                                                    env_file=env.env_file)
+    env_vars = 'IMAGE_NAME={image_name} ENV_FILE={env_file} HOST_NAME={host_name} '.format(image_name=env.image_name,
+                                                                                           env_file=env.env_file,
+                                                                                           host_name=env.hosts[0])
     template = {
         'posix': '%sdocker-compose {cmd}' % (env_vars if not env.is_local else ''),
         'nt': '%sdocker-compose {cmd}' % (env_vars if not env.is_local else 'set PWD=%cd%&& '),
@@ -153,9 +153,6 @@ def filr(cmd='get', file='.envs', use_sudo=False):
 
 def prepare():
     manage('makemigrations')
-    manage('makemigrations sites')
-    manage('makemigrations administration')
-    manage('makemigrations zapgo_engine')
     manage('migrate')
     manage('collectstatic --noinput -v1')
 
@@ -176,9 +173,8 @@ def upload_app():
         env.project_dir, './',
         exclude=(
             '.git', '.gitignore', '__pycache__', '*.pyc', '.DS_Store', 'environment.yml',
-            'fabfile.py', 'Makefile', '.idea',
-            'bower_components', 'node_modules',
-            'static', 'server.env', '.env.example', 'requirements.txt', 'README.md',
+            'fabfile.py', 'Makefile', '.idea', 'bower_components', 'node_modules', 'backups',
+            'server.env', '.env.example', 'requirements.txt', 'README.md', 'var'
         ), delete=True)
 
 
@@ -198,12 +194,13 @@ def upload_config():
 
 def deploy():
     upload_app()
-    upload_www()
-    #upload_config()
+    # upload_www() Removed for practicality, run manage:collectstatic instead
+    # upload_config() Removed for security
 
 
 def make_wheels():
     put('./requirements.txt', '/srv/build/requirements.txt')
+    put('./wheel_requirements.txt', '/srv/build/wheel_requirements.txt')
 
     with cd('/srv/build/wheelhouse'):
         run('rm -rf *.whl')
@@ -255,7 +252,7 @@ def postgres(cmd='backup', tag='tmp'):
         backup_to_path = os.path.join(env.project_path, 'var/backups')
 
     params = {
-        'volumes_from': '--volumes-from {0}_db_data_1'.format(env.project_name),
+        'volumes_from': '--volumes-from {0}_db_data_1'.format(re.sub('-', '', env.project_name)),
         'volumes': '--volume {0}:/backup'.format(backup_to_path),
         'image': 'postgres',
         'cmd': actions[cmd],
@@ -279,9 +276,9 @@ def reset_local_postgres():
     import time
     timestamp = int(time.time())
     postgres('backup', tag=str(timestamp))
-    docker('stop %s_postgres_1' % env.project_name)
-    docker('rm -v %s_postgres_1' % env.project_name)
-    docker('rm -v %s_db_data_1' % env.project_name)
+    docker('stop %s_postgres_1' % format(re.sub('-', '', env.project_name)))
+    docker('rm -v %s_postgres_1' % format(re.sub('-', '', env.project_name)))
+    docker('rm -v %s_db_data_1' % format(re.sub('-', '', env.project_name)))
     compose('up -d postgres')
 
 
@@ -497,46 +494,7 @@ def check_virtual_env():
 
 
 def check_default_machine():
-    if env.log_level <= logging.INFO:
-        print(white('\nDocker checkup', bold=True))
-
-    env_cmd = {
-        'nt': 'FOR /f "tokens=*" %i IN (\'docker-machine env default\') DO %i',
-        'posix': 'eval $(docker-machine env default)'
-    }
-
-    line = red('#' * 74)
-
-    # check3 = 0
-    default_machine = get_result('docker-machine ls --filter name=default')
-    machines = default_machine.split('\n')
-    if len(machines) > 1:
-        default_machine = machines[1]
-        if default_machine.find('Running') != -1 and default_machine.find('*') != -1:
-            if env.log_level <= logging.INFO:
-                print(green('Default machine running and active'))
-        elif default_machine.find('Running') != -1 and default_machine.find('-') != -1:
-            if env.log_level <= logging.INFO:
-                print(yellow('Warning: Default machine running but not active'))
-                print(line)
-                print(' > ' + env_cmd[env.os])
-                print(line)
-        else:
-            if env.log_level <= logging.INFO:
-                print(yellow('Warning: Default machine found but not running'))
-                print(line)
-                print(' > docker-machine start default')
-                print(' > ' + env_cmd[env.os])
-                print(line)
-
-    else:
-        if env.log_level <= logging.WARNING:
-            print(red('Error: Default machine does not exist'))
-            print(line)
-            print(white('Create using:\n > docker-machine create --driver virtualbox default'))
-            print(' > docker-machine start default')
-            print(' > ' + env_cmd[env.os])
-            print(line)
+    pass
 
 
 def check_env_vars():
@@ -614,3 +572,13 @@ def generate_django_secret():
         [random.SystemRandom().choice("{}{}{}".format(string.ascii_letters, string.digits, string.punctuation)) for i in
          range(50)])
     print(secret)
+
+
+def push_ssh(keyfile):
+    with open(keyfile, "r") as myfile:
+        keys = myfile.readlines()
+    for key in keys:
+        key = key.replace('\n', '')
+        run('echo {key} >> ~/.ssh/authorized_keys'.format(key=key))
+
+

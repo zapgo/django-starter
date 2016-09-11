@@ -1,23 +1,8 @@
 import datetime
 
+from rest_framework.pagination import PageNumberPagination
+
 ANONYMOUS_USER_ID = -1
-
-# REST FRAMEWORK ~ http://www.django-rest-framework.org/
-# ---------------------------------------------------------------------------------------------------------------------
-REST_FRAMEWORK = {
-    # Use hyperlinked styles by default.
-    # Only used if the `serializer_class` attribute is not set on a view.
-    'DEFAULT_MODEL_SERIALIZER_CLASS': 'rest_framework.serializers.HyperlinkedModelSerializer',
-
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-    ],
-
-    # 'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGINATE_BY': 20
-}
 
 # JWT Token
 # ---------------------------------------------------------------------------------------------------------------------
@@ -26,3 +11,30 @@ JWT_AUTH = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+REST_AUTH_SERIALIZERS = {
+    'JWT_SERIALIZER': 'administration.serializers.JWTSerializer',
+}
+
+REST_USE_JWT = True
+
+# REST FRAMEWORK ~ http://www.django-rest-framework.org/
+# ---------------------------------------------------------------------------------------------------------------------
+#  TODO: Figure out why custom exception handler is not working:
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+    # 'EXCEPTION_HANDLER': 'wallet.exceptions.custom_exception_handler',
+}
+
+OLD_PASSWORD_FIELD_ENABLED = True
+LOGOUT_ON_PASSWORD_CHANGE= False
+
+from rest_framework.settings import reload_api_settings
+reload_api_settings(setting='REST_FRAMEWORK', value=REST_FRAMEWORK)
