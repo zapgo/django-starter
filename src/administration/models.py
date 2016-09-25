@@ -44,6 +44,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         error_messages={
             'unique': _("A user with that username already exists."),
         },
+        unique=True
     )
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
@@ -64,7 +65,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
     objects = UserManager()
 
