@@ -1,7 +1,7 @@
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------#
 from logging import getLogger
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group, UserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group, UserManager, BaseUserManager
 from django.core import validators
 from django.core.mail import send_mail
 from django.db import models
@@ -17,7 +17,7 @@ logger = getLogger('django')
 
 class ProxyGroup(Group):
     class Meta:
-        proxy=True
+        proxy = True
         app_label = 'administration'
         verbose_name = 'Group'
         verbose_name_plural = 'Groups'
@@ -64,10 +64,8 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
-    objects = UserManager()
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
 
     class Meta:
         verbose_name = _('user')
@@ -106,11 +104,3 @@ class User(AbstractUser):
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'
-
-
-
-
-
-
-
-

@@ -34,7 +34,7 @@ REST_FRAMEWORK = {
 }
 
 OLD_PASSWORD_FIELD_ENABLED = True
-LOGOUT_ON_PASSWORD_CHANGE= False
+LOGOUT_ON_PASSWORD_CHANGE = False
 
 from rest_framework.settings import reload_api_settings
 reload_api_settings(setting='REST_FRAMEWORK', value=REST_FRAMEWORK)
